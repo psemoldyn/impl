@@ -32,13 +32,19 @@ Particle::Particle(	utils::Vector<double, 3> x_arg,
 	        utils::Vector<double, 3> v_arg,
 	        double m_arg,
 	        int type_arg
-) {
-    x = x_arg;
+):x(x_arg),
+  v(v_arg),
+  m(m_arg),
+  type(type_arg)
+{
+/*    x = x_arg;
     v = v_arg;
     m = m_arg;
     type = type_arg;
+*/
     f = 0.0;
     old_f = 0.0;
+
     std::cout << "Particle generated!" << std::endl;
 }
 
