@@ -22,7 +22,7 @@ FileReader::~FileReader() {
 }
 
 
-void FileReader::readFile(std::list<Particle>& particles, char* filename) {
+void FileReader::readFile(ParticleContainer& particles, char* filename) {
 	double x[] = {0,0,0};
 	double v[] = {1,1,1};
 	double m = 1;
@@ -63,7 +63,7 @@ void FileReader::readFile(std::list<Particle>& particles, char* filename) {
     		}
     		datastream >> m;
     		Particle p(x, v, m);
-    		particles.push_back(p);
+    		particles.add(p);
 
     		getline(input_file, tmp_string);
     		cout << "Read line: " << tmp_string << endl;
