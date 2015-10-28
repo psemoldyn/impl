@@ -8,18 +8,22 @@
 #include "ParticleContainer.h"
 
 ParticleContainer::ParticleContainer(){
-	particles = std::vector<Particle>();
+	particles = vector<Particle>();
 }
 
 ParticleContainer::ParticleContainer(int n){
-	particles = std::vector<Particle>(n);
+	particles = vector<Particle>(n);
 }
 
-ParticleContainer::ParticleContainer(ParticleContainer& pc){
+ParticleContainer::ParticleContainer(const ParticleContainer& pc){
 	particles = pc.particles;
 }
 
-void ParticleContainer::add(Particle p){
+ParticleContainer::ParticleContainer(const vector<Particle> pvector){
+	particles = pvector;
+}
+
+void ParticleContainer::add(const Particle& p){
 	particles.push_back(p);
 }
 
@@ -31,3 +35,10 @@ Particle& ParticleContainer::operator[](size_t i){
 	return particles[i];
 }
 
+vector<Particle>::iterator ParticleContainer::begin(){
+	return particles.begin();
+}
+
+vector<Particle>::iterator ParticleContainer::end(){
+	return particles.end();
+}

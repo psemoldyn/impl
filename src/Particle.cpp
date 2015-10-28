@@ -36,6 +36,7 @@ Particle::Particle(	utils::Vector<double, 3> x_arg,
   v(v_arg),
   m(m_arg),
   type(type_arg)
+
 {
 /*    x = x_arg;
     v = v_arg;
