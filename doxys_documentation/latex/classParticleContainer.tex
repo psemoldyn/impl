@@ -1,0 +1,113 @@
+\hypertarget{classParticleContainer}{}\section{Particle\+Container Class Reference}
+\label{classParticleContainer}\index{Particle\+Container@{Particle\+Container}}
+
+
+{\ttfamily \#include $<$Particle\+Container.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classParticleContainer_a76d21bdb5141158cf664d65e2d8b1db7}{Particle\+Container} ()
+\item 
+\hyperlink{classParticleContainer_a3bd4be6aa403538ae5ad2486aa00573c}{Particle\+Container} (int n)
+\item 
+\hyperlink{classParticleContainer_a2141e6ca39db88b9571ea353226cf9be}{Particle\+Container} (const \hyperlink{classParticleContainer}{Particle\+Container} \&pc)
+\item 
+\hyperlink{classParticleContainer_af5a354c93415a3dad049cb3d1e36ea68}{Particle\+Container} (const vector$<$ \hyperlink{classParticle}{Particle} $>$ pvector)
+\item 
+void \hyperlink{classParticleContainer_a39d2ad5e9c6aff35fc5b41586e6b38b5}{add} (const \hyperlink{classParticle}{Particle} \&p)
+\item 
+size\+\_\+t \hyperlink{classParticleContainer_a1c9372075d296dc6409c21c4dcab6fb1}{size} ()
+\item 
+\hyperlink{classParticle}{Particle} \& \hyperlink{classParticleContainer_aeb7ed6e001bf1db025e688463e497fe7}{operator\mbox{[}$\,$\mbox{]}} (size\+\_\+t i)
+\item 
+vector$<$ \hyperlink{classParticle}{Particle} $>$\+::iterator \hyperlink{classParticleContainer_adb4830a518ab84b106e8b822f1daa884}{begin} ()
+\item 
+vector$<$ \hyperlink{classParticle}{Particle} $>$\+::iterator \hyperlink{classParticleContainer_ab2e17cea64b42fb049848fa6f7c56c81}{end} ()
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+vector$<$ \hyperlink{classParticle}{Particle} $>$ \hyperlink{classParticleContainer_a7bc512a3ee04b6bae0d22f61097f4e8c}{particles}
+\end{DoxyCompactItemize}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classParticleContainer_a76d21bdb5141158cf664d65e2d8b1db7}{}\index{Particle\+Container@{Particle\+Container}!Particle\+Container@{Particle\+Container}}
+\index{Particle\+Container@{Particle\+Container}!Particle\+Container@{Particle\+Container}}
+\subsubsection[{Particle\+Container}]{\setlength{\rightskip}{0pt plus 5cm}Particle\+Container\+::\+Particle\+Container (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\label{classParticleContainer_a76d21bdb5141158cf664d65e2d8b1db7}
+Creates an empty container \hypertarget{classParticleContainer_a3bd4be6aa403538ae5ad2486aa00573c}{}\index{Particle\+Container@{Particle\+Container}!Particle\+Container@{Particle\+Container}}
+\index{Particle\+Container@{Particle\+Container}!Particle\+Container@{Particle\+Container}}
+\subsubsection[{Particle\+Container}]{\setlength{\rightskip}{0pt plus 5cm}Particle\+Container\+::\+Particle\+Container (
+\begin{DoxyParamCaption}
+\item[{int}]{n}
+\end{DoxyParamCaption}
+)}\label{classParticleContainer_a3bd4be6aa403538ae5ad2486aa00573c}
+Creates a container with n elements \hypertarget{classParticleContainer_a2141e6ca39db88b9571ea353226cf9be}{}\index{Particle\+Container@{Particle\+Container}!Particle\+Container@{Particle\+Container}}
+\index{Particle\+Container@{Particle\+Container}!Particle\+Container@{Particle\+Container}}
+\subsubsection[{Particle\+Container}]{\setlength{\rightskip}{0pt plus 5cm}Particle\+Container\+::\+Particle\+Container (
+\begin{DoxyParamCaption}
+\item[{const {\bf Particle\+Container} \&}]{pc}
+\end{DoxyParamCaption}
+)}\label{classParticleContainer_a2141e6ca39db88b9571ea353226cf9be}
+Creates a copy of the passed container \hypertarget{classParticleContainer_af5a354c93415a3dad049cb3d1e36ea68}{}\index{Particle\+Container@{Particle\+Container}!Particle\+Container@{Particle\+Container}}
+\index{Particle\+Container@{Particle\+Container}!Particle\+Container@{Particle\+Container}}
+\subsubsection[{Particle\+Container}]{\setlength{\rightskip}{0pt plus 5cm}Particle\+Container\+::\+Particle\+Container (
+\begin{DoxyParamCaption}
+\item[{const vector$<$ {\bf Particle} $>$}]{pvector}
+\end{DoxyParamCaption}
+)}\label{classParticleContainer_af5a354c93415a3dad049cb3d1e36ea68}
+Creates a \hyperlink{classParticleContainer}{Particle\+Container} of the passed list 
+
+\subsection{Member Function Documentation}
+\hypertarget{classParticleContainer_a39d2ad5e9c6aff35fc5b41586e6b38b5}{}\index{Particle\+Container@{Particle\+Container}!add@{add}}
+\index{add@{add}!Particle\+Container@{Particle\+Container}}
+\subsubsection[{add}]{\setlength{\rightskip}{0pt plus 5cm}void Particle\+Container\+::add (
+\begin{DoxyParamCaption}
+\item[{const {\bf Particle} \&}]{p}
+\end{DoxyParamCaption}
+)}\label{classParticleContainer_a39d2ad5e9c6aff35fc5b41586e6b38b5}
+Adds an element to the container \hypertarget{classParticleContainer_adb4830a518ab84b106e8b822f1daa884}{}\index{Particle\+Container@{Particle\+Container}!begin@{begin}}
+\index{begin@{begin}!Particle\+Container@{Particle\+Container}}
+\subsubsection[{begin}]{\setlength{\rightskip}{0pt plus 5cm}vector$<$ {\bf Particle} $>$\+::iterator Particle\+Container\+::begin (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\label{classParticleContainer_adb4830a518ab84b106e8b822f1daa884}
+Returns an iterator to the beginning of the container \hypertarget{classParticleContainer_ab2e17cea64b42fb049848fa6f7c56c81}{}\index{Particle\+Container@{Particle\+Container}!end@{end}}
+\index{end@{end}!Particle\+Container@{Particle\+Container}}
+\subsubsection[{end}]{\setlength{\rightskip}{0pt plus 5cm}vector$<$ {\bf Particle} $>$\+::iterator Particle\+Container\+::end (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\label{classParticleContainer_ab2e17cea64b42fb049848fa6f7c56c81}
+Returns an iterator to the next element after the end of the container \hypertarget{classParticleContainer_aeb7ed6e001bf1db025e688463e497fe7}{}\index{Particle\+Container@{Particle\+Container}!operator\mbox{[}$\,$\mbox{]}@{operator[]}}
+\index{operator\mbox{[}$\,$\mbox{]}@{operator[]}!Particle\+Container@{Particle\+Container}}
+\subsubsection[{operator[]}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Particle} \& Particle\+Container\+::operator\mbox{[}$\,$\mbox{]} (
+\begin{DoxyParamCaption}
+\item[{size\+\_\+t}]{i}
+\end{DoxyParamCaption}
+)}\label{classParticleContainer_aeb7ed6e001bf1db025e688463e497fe7}
+Returns a pointer to the i-\/th element \hypertarget{classParticleContainer_a1c9372075d296dc6409c21c4dcab6fb1}{}\index{Particle\+Container@{Particle\+Container}!size@{size}}
+\index{size@{size}!Particle\+Container@{Particle\+Container}}
+\subsubsection[{size}]{\setlength{\rightskip}{0pt plus 5cm}size\+\_\+t Particle\+Container\+::size (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\label{classParticleContainer_a1c9372075d296dc6409c21c4dcab6fb1}
+Returns the number of elements in the container 
+
+\subsection{Member Data Documentation}
+\hypertarget{classParticleContainer_a7bc512a3ee04b6bae0d22f61097f4e8c}{}\index{Particle\+Container@{Particle\+Container}!particles@{particles}}
+\index{particles@{particles}!Particle\+Container@{Particle\+Container}}
+\subsubsection[{particles}]{\setlength{\rightskip}{0pt plus 5cm}vector$<${\bf Particle}$>$ Particle\+Container\+::particles\hspace{0.3cm}{\ttfamily [private]}}\label{classParticleContainer_a7bc512a3ee04b6bae0d22f61097f4e8c}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+src/\hyperlink{ParticleContainer_8h}{Particle\+Container.\+h}\item 
+src/\hyperlink{ParticleContainer_8cpp}{Particle\+Container.\+cpp}\end{DoxyCompactItemize}
