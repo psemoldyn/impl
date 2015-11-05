@@ -3,6 +3,7 @@
 #include "outputWriter/VTKWriter.h"
 #include "FileReader.h"
 #include "ParticleContainer.h"
+#include "ParticleGenerator.h"
 
 #include <list>
 #include <cstring>
@@ -58,22 +59,58 @@ ParticleContainer particles;
 
 
 int main(int argc, char* argsv[]) {
-	testForce();
-	testParticleContainer();
-
 	cout << "Hello from MolSim for PSE!" << endl;
-	if (argc != 4) {
+	if (argc < 4) {
 		cout << "Errounous programme call! " << endl;
 		cout << "./molsym filename" << endl;
+	}
+	else if (argc == 4){
+		end_time = atof(argsv[2]);
+		delta_t = atof(argsv[3]);
 	}
 	else {
 		end_time = atof(argsv[2]);
 		delta_t = atof(argsv[3]);
+		utils::Vector<double, 3> posFirstParticle;
+		int lengthX;
+		int lengthY;
+		int lengthZ;
+		double distance;
+		double mass;
+		utils::Vector<double, 3> velocity;
+		double bm;
+
+		for (int i=0; i<3; i++){
+			posFirstParticle[i]=atof(argsv[4+i]);
+		}
+
+		lengthX = atoi(argsv[7]);
+		lengthY = atoi(argsv[8]);
+		lengthZ = atoi(argsv[9]);
+
+		distance = atof(argsv[10]);
+		mass = atof(argsv[11]);
+
+		for (int i=0; i<3; i++){
+			velocity[i] = atof(argsv[12+i]);
+		}
+
+		if (argc == 16){
+			bm = atof(argsv[15]);
+		}
+
+		else{
+			//is 1 a reasonable choice?
+			bm = 1;
+		}
+
+		ParticleGenerator pg(particles, posFirstParticle,lengthX,lengthY,lengthZ,distance,mass,velocity,bm);
 	}
 
 
-	FileReader fileReader;
-	fileReader.readFile(particles, argsv[1]);
+	//differentiate between two types of input files!
+//	FileReader fileReader;
+//	fileReader.readFile(particles, argsv[1]);
 	// the forces are needed to calculate x, but are not given in the input file.
 	calculateF();
 
@@ -167,35 +204,6 @@ void plotParticles(int iteration){
 	}
 
 	writer.writeFile(out_name, iteration);
-
-}
-
-void testForce(){
-	std::vector<Particle> p = std::vector<Particle>();
-	double x1[3] = {0,3,4};
-	double v1[3] = {5,1,2};
-	double m1 = 10;
-	Particle p1(x1,v1,m1);
-	double x2[3] = {10,9,8};
-	double v2[3] = {7,6,5};
-	double m2 = 20;
-	Particle p2(x2,v2,m2);
-	p.push_back(p1);
-	p.push_back(p2);
-	ParticleContainer particles(p);
-
-	// test if forces have changed and are opposite (F_ij = -F_ji and there are only two particles, so F_i = F_ij)
-	calculateF();
-
-	utils::Vector<double, 3> p1f = p1.getF();
-	utils::Vector<double, 3> p2f = p2.getF();
-	assert(p1f == (-1)*p2f);
-
-	//test if old_f corresponds to the f in previous iteration
-	calculateF();
-
-	assert(p1f == p1.getOldF());
-	assert(p2f == p2.getOldF());
 
 }
 
