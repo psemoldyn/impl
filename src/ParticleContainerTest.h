@@ -1,75 +1,100 @@
 /*
-
  * ParticleContainerTest.h
  *
  *  Created on: Nov 9, 2015
- *      Author: jana
+ *      Author: nivetha
  */
 
-#ifndef SRC_PARTICLECONTAINERTEST_H_
-#define SRC_PARTICLECONTAINERTEST_H_
+#ifndef PARTICLECONTAINERTEST_H_
+#define PARTICLECONTAINERTEST_H_
 
-#include "ParticleContainer.h"
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
 #include <cppunit/TestFixture.h>
+#include <cppunit/TestCaller.h>
+#include <cppunit/TestSuite.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/TestResult.h>
 #include <cppunit/TestResultCollector.h>
 #include <cppunit/TestRunner.h>
 #include <cppunit/BriefTestProgressListener.h>
 #include <cppunit/CompilerOutputter.h>
-//#include <cppunit/XmlOutputter.h>
-//#include <netinet/in.h>
+
+#include "ParticleContainer.h"
+#include "utils/Vector.h"
 
 using namespace CppUnit;
+using namespace std;
 
-class PartcileContainerTest : public CppUnit::TestFixture{
+class ParticleContainerTest : public CppUnit::TestFixture{
+
+	//Declaring the suite, passing the class name to macro
+	CPPUNIT_TEST_SUITE(ParticleContainerTest);
+	//Method is named after the class name, declaration of each test case of the fixture.
+    CPPUNIT_TEST(testadd);
+	//End of the suite declaration
+	CPPUNIT_TEST_SUITE_END();
 
 private:
-	ParticleContainer pa;
+	ParticleContainer pc;
 	Particle p1;
 	Particle p2;
+
 public:
-	void setUp(){
-		double x1[3] = {0,3,4};
-		double v1[3] = {5,1,2};
-		double m1 = 10;
-		p1(x1,v1,m1);
-		double x2[3] = {10,9,8};
-		double v2[3] = {7,6,5};
-		double m2 = 20;
-		p2(x2,v2,m2);
-		pa.add(Particle(p1));
+	ParticleContainerTest();
+    virtual ~ParticleContainerTest();
 
-		pa.add(Particle(p2));
-	}
-	void testParticleContainer()
+    void setUp(void)
+    	{
+//    	utils::Vector<double, 3> x1({0,3,4});
+//    	utils::Vector<double, 3> v1({5,1,2});
+    	double x1[3] = {0,3,4};
+    	double v1[3] = {5,1,2};
+    	double m1 = 10;
+    	Particle p1(x1,v1,m1);
+//    	utils::Vector<double, 3> x2({10,9,8});
+//    	utils::Vector<double, 3> v2({7,6,5});
+    	double x2[3] = {0,3,4};
+    	double v2[3] = {5,1,2};
+
+    	double m2 = 20;
+    	Particle p2(x2,v2,m2);
+    	pc.add(p1);
+    	pc.add(p2);
+    	}
+
+ void testadd()
 	{
-			std::vector<Particle> p = std::vector<Particle>();
-			p.push_back(p1);
-			p.push_back(p2);
+	pc.add(p1);
+	pc.add(p2);
 
-			ParticleContainer part(p);
+	ParticleContainer part(pc);
 
-			CPPUNIT_ASSERT(pa.size()==part.size());
-			CPPUNIT_ASSERT(pa.size()==(size_t)2);
-			CPPUNIT_ASSERT(pa[1]==part[1]);
-			CPPUNIT_ASSERT(pa[1]==p2);
+	CPPUNIT_ASSERT(pc.size()==part.size());
+	CPPUNIT_ASSERT(pc.size()==(size_t)2);
+	CPPUNIT_ASSERT(pc[1]==part[1]);
+	CPPUNIT_ASSERT(pc[1]==p2);
 
-		}
+	}
+};
 
-	static CppUnit::Test *suite(){
+/*
+static CppUnit::Test *suite(){
+
+		ParticleContainerTest t;
+
 		CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("ParticleContainerTest");
-		suiteOfTests->addTest(new CppUnit::TestCaller<ParticleContainerTest>("testParticleContainer", &testParticleContainer));
 
+		CppUnit::Test *test2 = new CppUnit::TestCaller<ParticleContainerTest> ("testadd", &ParticleContainerTest::testadd());
+        suiteOfTests->addTest(test2);
 		return suiteOfTests;
 	}
 
+
 };
 
+*/
 
 
-
-#endif /* SRC_PARTICLECONTAINERTEST_H_ */
+#endif /* PARTICLECONTAINERTEST_H_ */

@@ -4,7 +4,7 @@
 #include "FileReader.h"
 #include "ParticleContainer.h"
 #include "ParticleGenerator.h"
-//#include "ParticleContainerTest.h"
+#include "ParticleContainerTest.h"
 
 #include <list>
 #include <cstring>
@@ -13,14 +13,8 @@
 #include <math.h>
 
 #include <cppunit/extensions/HelperMacros.h>
+#include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/TestCase.h>
-#include <cppunit/TestFixture.h>
-#include <cppunit/extensions/TestFactoryRegistry.h>
-#include <cppunit/TestResult.h>
-#include <cppunit/TestResultCollector.h>
-#include <cppunit/TestRunner.h>
-#include <cppunit/BriefTestProgressListener.h>
-#include <cppunit/CompilerOutputter.h>
 
 #include <log4cxx/logstring.h>
 #include <log4cxx/logger.h>
@@ -33,8 +27,8 @@
 #include <log4cxx/helpers/pool.h>
 #include <log4cxx/helpers/bytebuffer.h>
 
-using namespace std;
 using namespace CppUnit;
+using namespace std;
 using namespace log4cxx;
 using namespace log4cxx::helpers;
 
@@ -86,7 +80,19 @@ ParticleContainer particles;
 
 
 int main(int argc, char* argsv[]) {
-log4cxx::xml::DOMConfigurator::configure("Log4cxxConfig.xml");
+
+
+//			CPPUNIT_TEST_SUITE_REGISTRAION(ParticleContainerTest);
+
+		CppUnit::TestRunner runner;
+		TestResult result;
+		runner.addTest(ParticleContainerTest::suite());
+		runner.run(result);
+		return 0;
+
+
+
+	log4cxx::xml::DOMConfigurator::configure("Log4cxxConfig.xml");
 
 	//	PropertyConfigurator::configure("log.cfg");
 
@@ -105,9 +111,10 @@ log4cxx::xml::DOMConfigurator::configure("Log4cxxConfig.xml");
 	*/
 	if (argc < 5) {
 		cout << "Erroneous program call! " << endl;
-//		cout << "./molsym filename" << endl;
+//		cout << "./molsim filename" << endl;
 	}
-	//pass "l" for a list of particles, "c" for a cuboid as the scond argument
+
+	//pass "l" for a list of particles, "c" for a cuboid as the second argument
 	else if (argc == 5){
 		if (*argsv[1] == 'l'){
 			FileReader fileReader;
@@ -161,6 +168,7 @@ log4cxx::xml::DOMConfigurator::configure("Log4cxxConfig.xml");
 
 			ParticleGenerator pg(particles, posFirstParticle,lengthX,lengthY,lengthZ,distance,mass,velocity,bm);
 		}
+
 	}
 
 
