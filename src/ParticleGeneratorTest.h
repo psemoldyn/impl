@@ -1,13 +1,12 @@
 /*
- * ParticleContainerTest.h
+ * ParticleGeneratorTest.h
  *
  *  Created on: Nov 9, 2015
- *      Author: nivetha
+ *      Author: jana
  */
 
-#ifndef PARTICLECONTAINERTEST_H_
-#define PARTICLECONTAINERTEST_H_
-
+#ifndef SRC_PARTICLEGENERATORTEST_H_
+#define SRC_PARTICLEGENERATORTEST_H_
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -21,39 +20,31 @@
 #include <cppunit/BriefTestProgressListener.h>
 #include <cppunit/CompilerOutputter.h>
 
-#include "ParticleContainer.h"
+#include "ParticleGenerator.h"
 #include "utils/Vector.h"
 
 using namespace CppUnit;
-using namespace std;
 
-class ParticleContainerTest : public CppUnit::TestFixture{
+class ParticleGeneratorTest : public CppUnit::TestFixture{
 
 	//Declaring the suite, passing the class name to macro
-	CPPUNIT_TEST_SUITE(ParticleContainerTest);
+	CPPUNIT_TEST_SUITE(ParticleGeneratorTest);
 	//Method is named after the class name, declaration of each test case of the fixture.
-    CPPUNIT_TEST(testConstructor);
-    CPPUNIT_TEST(testSize);
-    CPPUNIT_TEST(testIndex);
+    CPPUNIT_TEST(testNumParticles);
 	//End of the suite declaration
 	CPPUNIT_TEST_SUITE_END();
 
 private:
 	ParticleContainer pc;
-	Particle p1;
-	Particle p2;
 
 public:
-	ParticleContainerTest();
-	virtual ~ParticleContainerTest();
+	ParticleGeneratorTest();
+	~ParticleGeneratorTest();
 
     void setUp();
-    void testConstructor();
-    void testSize();
-    void testIndex();
+    void testNumParticles();
 };
 
 
 
-
-#endif /* PARTICLECONTAINERTEST_H_ */
+#endif /* SRC_PARTICLEGENERATORTEST_H_ */

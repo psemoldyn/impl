@@ -5,6 +5,7 @@
 #include "ParticleContainer.h"
 #include "ParticleGenerator.h"
 #include "ParticleContainerTest.h"
+#include "ParticleGeneratorTest.h"
 
 #include <list>
 #include <cstring>
@@ -13,6 +14,7 @@
 #include <math.h>
 
 #include <cppunit/extensions/HelperMacros.h>
+#include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/TestCase.h>
 
@@ -82,14 +84,6 @@ ParticleContainer particles;
 int main(int argc, char* argsv[]) {
 
 
-//			CPPUNIT_TEST_SUITE_REGISTRAION(ParticleContainerTest);
-
-		CppUnit::TestRunner runner;
-		TestResult result;
-		runner.addTest(ParticleContainerTest::suite());
-		runner.run(result);
-		return 0;
-
 
 
 	log4cxx::xml::DOMConfigurator::configure("Log4cxxConfig.xml");
@@ -109,7 +103,18 @@ int main(int argc, char* argsv[]) {
 		runner.run(result);
 	}
 	*/
-	if (argc < 5) {
+	if (strcmp(argsv[1],"-test")==0){
+		if (argc == 2){
+			CppUnit::TestRunner runner;
+			TestResult result;
+			runner.addTest(ParticleContainerTest::suite());
+			runner.addTest(ParticleGeneratorTest::suite());
+			runner.run(result);
+			return 0;
+		}
+	}
+
+	else if (argc < 5) {
 		cout << "Erroneous program call! " << endl;
 //		cout << "./molsim filename" << endl;
 	}
