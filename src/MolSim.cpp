@@ -4,6 +4,7 @@
 #include "FileReader.h"
 #include "ParticleContainer.h"
 #include "ParticleGenerator.h"
+//#include "ParticleContainerTest.h"
 
 #include <list>
 #include <cstring>
@@ -11,7 +12,31 @@
 #include <iostream>
 #include <math.h>
 
+#include <cppunit/extensions/HelperMacros.h>
+#include <cppunit/TestCase.h>
+#include <cppunit/TestFixture.h>
+#include <cppunit/extensions/TestFactoryRegistry.h>
+#include <cppunit/TestResult.h>
+#include <cppunit/TestResultCollector.h>
+#include <cppunit/TestRunner.h>
+#include <cppunit/BriefTestProgressListener.h>
+#include <cppunit/CompilerOutputter.h>
+
+#include <log4cxx/logstring.h>
+#include <log4cxx/logger.h>
+#include "log4cxx/basicconfigurator.h"
+#include "log4cxx/consoleappender.h"
+#include "log4cxx/propertyconfigurator.h"
+#include <log4cxx/xml/domconfigurator.h>
+#include <log4cxx/helpers/inputstreamreader.h>
+#include <log4cxx/helpers/exception.h>
+#include <log4cxx/helpers/pool.h>
+#include <log4cxx/helpers/bytebuffer.h>
+
 using namespace std;
+using namespace CppUnit;
+using namespace log4cxx;
+using namespace log4cxx::helpers;
 
 /**** forward declaration of the calculation functions ****/
 
@@ -43,12 +68,14 @@ void plotParticlesXYZ(int iteration);
 /**
  * Tests the functionality of calculateF()
  */
-void testForce();
+//void testForce();
 
 /**
  * Tests the functionality of ParticleContainer
  */
-void testParticleContainer();
+//void testParticleContainer();
+
+LoggerPtr loggerMain(log4cxx::Logger::getLogger("main"));
 
 
 double start_time = 0;
@@ -59,18 +86,34 @@ ParticleContainer particles;
 
 
 int main(int argc, char* argsv[]) {
-	cout << "Hello from MolSim for PSE!" << endl;
-	if (argc < 4) {
+log4cxx::xml::DOMConfigurator::configure("Log4cxxConfig.xml");
+
+	//	PropertyConfigurator::configure("log.cfg");
+
+//	BasicConfigurator::configure();
+
+
+	LOG4CXX_INFO (loggerMain, "Hello from MolSim for PSE!" );
+/*	if (argc == 2 && argsv[1]=="-test"){
+//		CPPUNIT_TEST_SUITE_REGISTRATION(ParticleContainerTest);
+		CppUnit::TestSuite suite;
+		CppUnit::TestRunner runner;
+		CppUnit:: TestResult result;
+		runner.addTest(ParticleContainerTest::suite());
+		runner.run(result);
+	}
+	*/
+	if (argc < 5) {
 		cout << "Erroneous program call! " << endl;
 //		cout << "./molsym filename" << endl;
 	}
 	//pass "l" for a list of particles, "c" for a cuboid as the scond argument
 	else if (argc == 5){
-		if (argsv[1]=="l"){
+		if (*argsv[1] == 'l'){
 			FileReader fileReader;
 			fileReader.readFile(particles, argsv[2]);
 		}
-		else if (argsv[1]=="c"){
+		else if (*argsv[1]=='c'){
 			ParticleGenerator pg(particles, argsv[2]);
 		}
 		else{
@@ -93,14 +136,6 @@ int main(int argc, char* argsv[]) {
 
 		//11 arguments for each cuboid
 		for (int c=0; c<(argc-3)/11; c++){
-			//start of cuboid relative to previous (or start)
-			int s;
-			if (c==0){
-				s = 3;
-			}
-			else {
-				s = 0;
-			}
 			for (int i=0; i<3; i++){
 				posFirstParticle[i]=atof(argsv[11*c+3+i]);
 			}
