@@ -61,16 +61,27 @@ ParticleContainer particles;
 int main(int argc, char* argsv[]) {
 	cout << "Hello from MolSim for PSE!" << endl;
 	if (argc < 4) {
-		cout << "Errounous programme call! " << endl;
-		cout << "./molsym filename" << endl;
+		cout << "Erroneous program call! " << endl;
+//		cout << "./molsym filename" << endl;
 	}
-	else if (argc == 4){
-		end_time = atof(argsv[2]);
-		delta_t = atof(argsv[3]);
+	//pass "l" for a list of particles, "c" for a cuboid as the scond argument
+	else if (argc == 5){
+		if (argsv[1]=="l"){
+			FileReader fileReader;
+			fileReader.readFile(particles, argsv[2]);
+		}
+		else if (argsv[1]=="c"){
+			ParticleGenerator pg(particles, argsv[2]);
+		}
+		else{
+			cout << "Erroneous program call! " << endl;
+		}
+		end_time = atof(argsv[3]);
+		delta_t = atof(argsv[4]);
 	}
 	else {
-		end_time = atof(argsv[2]);
-		delta_t = atof(argsv[3]);
+		end_time = atof(argsv[1]);
+		delta_t = atof(argsv[2]);
 		utils::Vector<double, 3> posFirstParticle;
 		int lengthX;
 		int lengthY;
@@ -80,31 +91,41 @@ int main(int argc, char* argsv[]) {
 		utils::Vector<double, 3> velocity;
 		double bm;
 
-		for (int i=0; i<3; i++){
-			posFirstParticle[i]=atof(argsv[4+i]);
+		//11 arguments for each cuboid
+		for (int c=0; c<(argc-3)/11; c++){
+			//start of cuboid relative to previous (or start)
+			int s;
+			if (c==0){
+				s = 3;
+			}
+			else {
+				s = 0;
+			}
+			for (int i=0; i<3; i++){
+				posFirstParticle[i]=atof(argsv[11*c+3+i]);
+			}
+
+			lengthX = atoi(argsv[11*c+6]);
+			lengthY = atoi(argsv[11*c+7]);
+			lengthZ = atoi(argsv[11*c+8]);
+
+			distance = atof(argsv[11*c+9]);
+			mass = atof(argsv[13*c+10]);
+
+			for (int i=0; i<3; i++){
+				velocity[i] = atof(argsv[11*c+i+11]);
+			}
+
+/*			if (argc == 16){
+				bm = atof(argsv[15]);
+			}
+*/
+//			else{
+				bm = 0.1;
+//			}
+
+			ParticleGenerator pg(particles, posFirstParticle,lengthX,lengthY,lengthZ,distance,mass,velocity,bm);
 		}
-
-		lengthX = atoi(argsv[7]);
-		lengthY = atoi(argsv[8]);
-		lengthZ = atoi(argsv[9]);
-
-		distance = atof(argsv[10]);
-		mass = atof(argsv[11]);
-
-		for (int i=0; i<3; i++){
-			velocity[i] = atof(argsv[12+i]);
-		}
-
-		if (argc == 16){
-			bm = atof(argsv[15]);
-		}
-
-		else{
-			//is 1 a reasonable choice?
-			bm = 1;
-		}
-
-		ParticleGenerator pg(particles, posFirstParticle,lengthX,lengthY,lengthZ,distance,mass,velocity,bm);
 	}
 
 
@@ -144,21 +165,24 @@ int main(int argc, char* argsv[]) {
 
 
 void calculateF() {
-	for (size_t i=0; i<particles.size();i++){
-
+	float epsilon = 5.0;
+	float sigma = 1.0;
+	//set force for all particles to 0
+	for(size_t i=0; i<particles.size(); i++){
 		Particle& p1 = particles[i];
 		p1.getOldF() = p1.getF();
 		p1.getF() = 0;
+	}
 
-		for (size_t j = 0; j<particles.size();j++){
-			if (i != j){
+	//calculate new force
+	for (size_t i=0; i<particles.size();i++){
+		Particle& p1 = particles[i];
+		for (size_t j = i+1; j<particles.size();j++){
 				Particle& p2 = particles[j];
 
-				double denominator = pow((p2.getX()-p1.getX()).L2Norm(),3);
-
-				p1.getF() = p1.getF() + p1.getM()*p2.getM()/denominator*(p2.getX()-p1.getX());
-
-			}
+				double norm = (p1.getX()-p2.getX()).L2Norm();
+				p1.getF() = p1.getF() + 24.0*epsilon/norm*(pow(sigma/norm,6)-2*pow(sigma/norm,12))*(p2.getX()-p1.getX());
+				p2.getF() = p2.getF() - 24.0*epsilon/norm*(pow(sigma/norm,6)-2*pow(sigma/norm,12))*(p2.getX()-p1.getX());
 		}
 	}
 }
@@ -204,33 +228,6 @@ void plotParticles(int iteration){
 	}
 
 	writer.writeFile(out_name, iteration);
-
-}
-
-void testParticleContainer(){
-	ParticleContainer pa;
-	double x1[3] = {0,3,4};
-	double v1[3] = {5,1,2};
-	double m1 = 10;
-	Particle p1(x1,v1,m1);
-	double x2[3] = {10,9,8};
-	double v2[3] = {7,6,5};
-	double m2 = 20;
-	Particle p2(x2,v2,m2);
-	pa.add(Particle(p1));
-
-	pa.add(Particle(p2));
-
-	std::vector<Particle> p = std::vector<Particle>();
-	p.push_back(p1);
-	p.push_back(p2);
-
-	ParticleContainer part(p);
-
-	assert(pa.size()==part.size());
-	assert(pa.size()==(size_t)2);
-	assert(pa[1]==part[1]);
-	assert(pa[1]==p2);
 
 }
 

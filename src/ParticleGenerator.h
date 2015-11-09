@@ -80,7 +80,7 @@ private:
 	/**
 	 * Generates the particles
 	 */
-	ParticleContainer& generateParticles(ParticleContainer& partciles);
+	void generateParticles(ParticleContainer& partciles);
 
 public:
 

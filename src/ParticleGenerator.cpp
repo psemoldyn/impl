@@ -58,7 +58,7 @@ ParticleGenerator::ParticleGenerator(ParticleContainer& particles, char* filenam
           		}
 
           		if (datastream.eof()){
-          			bm = 1;
+          			bm = 0.1;
           		}
 
           		datastream >> bm;
@@ -107,12 +107,11 @@ void ParticleGenerator::generateParticlesX(ParticleContainer& particles, int n){
 		cout << p << endl;
 		MaxwellBoltzmannDistribution(p,bm,dim);
 		particles.add(p);
-
 	}
 
 }
 
-ParticleContainer& ParticleGenerator::generateParticles(ParticleContainer& particles){
+void ParticleGenerator::generateParticles(ParticleContainer& particles){
 	for (int i= 0; i < z; i++){
 		for (int j = 0; j < y; j++){
 			generateParticlesX(particles, x);
@@ -120,6 +119,4 @@ ParticleContainer& ParticleGenerator::generateParticles(ParticleContainer& parti
 		}
 		currentParticle[2] += h;
 	}
-
-	return particles;
 }
