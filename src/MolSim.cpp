@@ -4,6 +4,10 @@
 #include "FileReader.h"
 #include "ParticleContainer.h"
 #include "ParticleGenerator.h"
+#include "ParticleContainerTest.h"
+#include <cppunit/extensions/HelperMacros.h>
+#include <cppunit/ui/text/TestRunner.h>
+#include <cppunit/TestCase.h>
 
 #include <list>
 #include <cstring>
@@ -11,6 +15,7 @@
 #include <iostream>
 #include <math.h>
 
+using namespace CppUnit;
 using namespace std;
 
 /**** forward declaration of the calculation functions ****/
@@ -60,11 +65,14 @@ ParticleContainer particles;
 
 int main(int argc, char* argsv[]) {
 	cout << "Hello from MolSim for PSE!" << endl;
+
+
 	if (argc < 4) {
 		cout << "Erroneous program call! " << endl;
-//		cout << "./molsym filename" << endl;
+//		cout << "./molsim filename" << endl;
 	}
-	//pass "l" for a list of particles, "c" for a cuboid as the scond argument
+
+	//pass "l" for a list of particles, "c" for a cuboid as the second argument
 	else if (argc == 5){
 		if (argsv[1]=="l"){
 			FileReader fileReader;
@@ -125,6 +133,14 @@ int main(int argc, char* argsv[]) {
 //			}
 
 			ParticleGenerator pg(particles, posFirstParticle,lengthX,lengthY,lengthZ,distance,mass,velocity,bm);
+		}
+
+		{
+			CppUnit::TextUi::TestRunner runner;
+			runner.addTest(CppUnit::TestCaller *ParticleContainerTest("setUP", &ParticleContainerTest::setUP));
+			runner.addTest(CppUnit::TestCaller *ParticleContainerTest("testadd", &ParticleContainerTest::testadd));
+			runner.run();
+			return 0;
 		}
 	}
 
