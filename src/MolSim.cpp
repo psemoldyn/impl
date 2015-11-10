@@ -30,8 +30,8 @@
 #include <log4cxx/helpers/pool.h>
 #include <log4cxx/helpers/bytebuffer.h>
 
-using namespace CppUnit;
 using namespace std;
+using namespace CppUnit;
 using namespace log4cxx;
 using namespace log4cxx::helpers;
 
@@ -62,19 +62,8 @@ void plotParticles(int iteration);
  */
 void plotParticlesXYZ(int iteration);
 
-/**
- * Tests the functionality of calculateF()
- */
-//void testForce();
-
-/**
- * Tests the functionality of ParticleContainer
- */
-//void testParticleContainer();
 
 static LoggerPtr logger(Logger::getLogger("global"));
-LoggerPtr loggerMain(log4cxx::Logger::getLogger("main"));
-LoggerPtr loggerParticle(log4cxx::Logger::getLogger("Particle"));
 
 double start_time = 0;
 double end_time = 1000;
@@ -84,18 +73,9 @@ ParticleContainer particles;
 
 
 int main(int argc, char* argsv[]) {
-
-
-
-
-	log4cxx::xml::DOMConfigurator::configure("Log4cxxConfig.xml");
-
-	//	PropertyConfigurator::configure("log.cfg");
-
-//	BasicConfigurator::configure();
-
-
+	PropertyConfigurator::configure("log.cfg");
 	LOG4CXX_INFO (logger, "Hello from MolSim for PSE!" );
+
 	if (strcmp(argsv[1],"-test")==0){
 		if (argc == 2){
 			CppUnit::TestRunner runner;
@@ -119,10 +99,10 @@ int main(int argc, char* argsv[]) {
 	}
 
 	else if (argc < 5) {
-		LOG4CXX_ERROR(loggerMain,"Erroneous program call!");
+		LOG4CXX_FATAL(logger,"Erroneous program call! Please type the end time and time step, then c for a file "
+				"containing cuboids or l for a file containing a list of particles, followed by the filename. ALternatively, "
+				"type the parameters of the cuboids you want to create. ");
 		return 0;
-//		cout << "Erroneous program call!" << endl;
-//		cout << "./molsim filename" << endl;
 	}
 
 	//pass "l" for a list of particles, "c" for a cuboid as the second argument
@@ -135,8 +115,9 @@ int main(int argc, char* argsv[]) {
 			ParticleGenerator pg(particles, argsv[2]);
 		}
 		else{
-//			cout << "Erroneous program call! " << endl;
-			LOG4CXX_FATAL(logger, "Erroneous program call!");
+			LOG4CXX_FATAL(logger, "Erroneous program call! Please type the end time and time step, then c for a file "
+				"containing cuboids or l for a file containing a list of particles, followed by the filename. ALternatively, "
+				"type the parameters of the cuboids you want to create. ");
 			return 0;
 		}
 		end_time = atof(argsv[3]);
@@ -185,9 +166,6 @@ int main(int argc, char* argsv[]) {
 	}
 
 
-	//differentiate between two types of input files!
-//	FileReader fileReader;
-//	fileReader.readFile(particles, argsv[1]);
 	// the forces are needed to calculate x, but are not given in the input file.
 	calculateF();
 
@@ -213,13 +191,11 @@ int main(int argc, char* argsv[]) {
 		stringstream ss;
 		ss << iteration;
 
-//		cout << "Iteration " << iteration << " finished." << endl;
 		LOG4CXX_INFO(logger, "Iteration " + ss.str() + " finished.");
 
 		current_time += delta_t;
 	}
 
-//	cout << "output written. Terminating..." << endl;
 	LOG4CXX_INFO(logger, "Output written. Terminating...");
 	return 0;
 }

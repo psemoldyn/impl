@@ -26,14 +26,10 @@ ParticleContainerTest::~ParticleContainerTest() {
 }
 
 void ParticleContainerTest::setUp()   	{
-	//    	utils::Vector<double, 3> x1({0,3,4});
-	//    	utils::Vector<double, 3> v1({5,1,2});
 	    	double x1[3] = {0,3,4};
 	    	double v1[3] = {5,1,2};
 	    	double m1 = 10;
 	    	Particle p1(x1,v1,m1);
-	//    	utils::Vector<double, 3> x2({10,9,8});
-	//    	utils::Vector<double, 3> v2({7,6,5});
 	    	double x2[3] = {0,3,4};
 	    	double v2[3] = {5,1,2};
 
@@ -44,8 +40,6 @@ void ParticleContainerTest::setUp()   	{
 	   }
 
 void ParticleContainerTest::testConstructor(){
-//	pc.add(p1);
-//	pc.add(p2);
 
 	ParticleContainer part(pc);
 

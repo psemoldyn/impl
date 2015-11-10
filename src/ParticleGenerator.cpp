@@ -6,7 +6,11 @@
  */
 
 #include "ParticleGenerator.h"
+#include <sstream>
 
+using namespace std;
+
+static LoggerPtr logger(Logger::getLogger("global"));
 
 ParticleGenerator::ParticleGenerator(ParticleContainer& particles, char* filename){
 	std::ifstream inputFile(filename);
@@ -16,55 +20,57 @@ ParticleGenerator::ParticleGenerator(ParticleContainer& particles, char* filenam
     if (inputFile.is_open()) {
 
     	getline(inputFile, input);
-    	cout << "Read line: " << input << endl;
+    	LOG4CXX_INFO(logger, "Read line: " + input);
 
     	while (input.size() == 0 || input[0] == '#') {
     		getline(inputFile, input);
-    		cout << "Read line: " << input << endl;
+    		LOG4CXX_INFO(logger, "Read line: " + input);
     	}
 
        	istringstream numstream(input);
         numstream >> numCuboids;
 
-       	getline(inputFile, input);
-        	cout << "Read line: " << input << endl;
 
-        	for (int i = 0; i < numCuboids; i++) {
-        		istringstream datastream(input);
+        for (int i = 0; i < numCuboids; i++) {
+        	getline(inputFile, input);
+           	LOG4CXX_INFO(logger, "Read line: " + input);
 
-        		// read position of lower left particle
-        		for (int j=0; j<3; j++){
-        			datastream >> firstParticle[j];
+       		istringstream datastream(input);
+
+       		// read position of lower left particle
+       		for (int j=0; j<3; j++){
+       			datastream >> firstParticle[j];
+       			currentParticle[j] = firstParticle[j];
+       		}
+
+       		//read number of particles on x-axis
+       		datastream >> x;
+
+       		//read number of particles on y-axis
+       		datastream >> y;
+
+       		//read number of particles on z-axis
+        	datastream >> z;
+
+          	//read distance
+         	datastream >> h;
+
+          	//read mass
+          	datastream >> mass;
+
+          	//read velocity
+          	for (int j=0; j<3; j++){
+          		datastream >> v[j];
         		}
 
-        		//read number of particles on x-axis
-        		datastream >> x;
+    //      		if (datastream.eof()){
+          	bm = 0.1;
+    //      		}
 
-        		//read number of particles on y-axis
-        		datastream >> y;
+     //     		datastream >> bm;
 
-        		//read number of particles on z-axis
-          		datastream >> z;
-
-          		//read distance
-          		datastream >> h;
-
-          		//read mass
-          		datastream >> mass;
-
-          		//read velocity
-          		for (int j=0; j<3; j++){
-          			datastream >> v[j];
-          		}
-
-          		if (datastream.eof()){
-          			bm = 0.1;
-          		}
-
-          		datastream >> bm;
-
-          		//maybe use arrays for the class attributes so all cuboids can be saved?
-          		generateParticles(particles);
+          	//maybe use arrays for the class attributes so all cuboids can be saved?
+          	generateParticles(particles);
 
         	}
 
@@ -116,6 +122,10 @@ void ParticleGenerator::generateParticles(ParticleContainer& particles){
 		for (int j = 0; j < y; j++){
 			generateParticlesX(particles, x);
 			currentParticle[1] += h;
+			stringstream ss;
+			ss << j+1;
+	    	LOG4CXX_INFO(logger, "Generated row: " + ss.str());
+
 		}
 		currentParticle[2] += h;
 	}
