@@ -72,7 +72,7 @@ void plotParticlesXYZ(int iteration);
 //void testParticleContainer();
 
 LoggerPtr loggerMain(log4cxx::Logger::getLogger("main"));
-
+LoggerPtr loggerParticle(log4cxx::Logger::getLogger("Particle"));
 
 double start_time = 0;
 double end_time = 1000;
@@ -94,15 +94,6 @@ int main(int argc, char* argsv[]) {
 
 
 	LOG4CXX_INFO (loggerMain, "Hello from MolSim for PSE!" );
-/*	if (argc == 2 && argsv[1]=="-test"){
-//		CPPUNIT_TEST_SUITE_REGISTRATION(ParticleContainerTest);
-		CppUnit::TestSuite suite;
-		CppUnit::TestRunner runner;
-		CppUnit:: TestResult result;
-		runner.addTest(ParticleContainerTest::suite());
-		runner.run(result);
-	}
-	*/
 	if (strcmp(argsv[1],"-test")==0){
 		if (argc == 2){
 			CppUnit::TestRunner runner;
@@ -110,12 +101,25 @@ int main(int argc, char* argsv[]) {
 			runner.addTest(ParticleContainerTest::suite());
 			runner.addTest(ParticleGeneratorTest::suite());
 			runner.run(result);
-			return 0;
 		}
+
+		//to add in future: choose function and unit test to run
+		else{
+			if (strcmp(argsv[2],"testConstructor")==0)
+				CppUnit::TestCaller<ParticleContainerTest> testPC(argsv[2],&ParticleContainerTest::testConstructor);
+			if (strcmp(argsv[2], "testSize")==0)
+				CppUnit::TestCaller<ParticleContainerTest> testPC(argsv[2],&ParticleContainerTest::testSize);
+			if (strcmp(argsv[2], "testIndex")==0)
+				CppUnit::TestCaller<ParticleContainerTest> testPC(argsv[2],&ParticleContainerTest::testIndex);
+		}
+
+		return 0;
 	}
 
 	else if (argc < 5) {
-		cout << "Erroneous program call! " << endl;
+		LOG4CXX_ERROR(loggerMain,"Erroneous program call!");
+		return 0;
+//		cout << "Erroneous program call!" << endl;
 //		cout << "./molsim filename" << endl;
 	}
 
