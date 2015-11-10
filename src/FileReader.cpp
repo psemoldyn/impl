@@ -8,12 +8,15 @@
 #include "FileReader.h"
 #include "utils/Vector.h"
 
+#include <string>
 #include <fstream>
 #include <sstream>
 #include <iostream>
 #include <cstdlib>
 
 using namespace std;
+
+static LoggerPtr logger(Logger::getLogger("global"));
 
 FileReader::FileReader() {
 }
@@ -34,18 +37,21 @@ void FileReader::readFile(ParticleContainer& particles, char* filename) {
     if (input_file.is_open()) {
 
     	getline(input_file, tmp_string);
-    	cout << "Read line: " << tmp_string << endl;
+    	LOG4CXX_INFO(logger, "Read line: " + tmp_string);
 
     	while (tmp_string.size() == 0 || tmp_string[0] == '#') {
     		getline(input_file, tmp_string);
-    		cout << "Read line: " << tmp_string << endl;
+//    		cout << "Read line: " << tmp_string << endl;
+        	LOG4CXX_INFO(logger, "Read line: " + tmp_string);
     	}
 
     	istringstream numstream(tmp_string);
     	numstream >> num_particles;
-    	cout << "Reading " << num_particles << "." << endl;
+//    	cout << "Reading " << num_particles << "." << endl;
+    	LOG4CXX_INFO(logger, "Readng " + numstream.str() + " particles.");
     	getline(input_file, tmp_string);
-    	cout << "Read line: " << tmp_string << endl;
+ //   	cout << "Read line: " << tmp_string << endl;
+    	LOG4CXX_INFO(logger, "Read line: " + tmp_string);
 
     	for (int i = 0; i < num_particles; i++) {
     		istringstream datastream(tmp_string);
@@ -58,7 +64,8 @@ void FileReader::readFile(ParticleContainer& particles, char* filename) {
     			datastream >> v[j];
     		}
     		if (datastream.eof()) {
-    			cout << "Error reading file: eof reached unexpectedly reading from line " << i << endl;
+//    			cout << "Error reading file: eof reached unexpectedly reading from line " << i << endl;
+    			LOG4CXX_FATAL(logger,"Error reading file: eof reached unexpectedly reading from line " + i)
     			exit(-1);
     		}
     		datastream >> m;
@@ -66,10 +73,12 @@ void FileReader::readFile(ParticleContainer& particles, char* filename) {
     		particles.add(p);
 
     		getline(input_file, tmp_string);
-    		cout << "Read line: " << tmp_string << endl;
+        	LOG4CXX_INFO(logger, "Read line: " + tmp_string);
+ //   		cout << "Read line: " << tmp_string << endl;
     	}
     } else {
-    	std::cout << "Error: could not open file " << filename << std::endl;
+//    	std::cout << "Error: could not open file " << filename << std::endl;
+    	LOG4CXX_FATAL(logger, "Error: could not open file");
     	exit(-1);
     }
 

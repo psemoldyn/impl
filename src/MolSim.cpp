@@ -8,6 +8,7 @@
 #include "ParticleGeneratorTest.h"
 
 #include <list>
+#include <sstream>
 #include <cstring>
 #include <cstdlib>
 #include <iostream>
@@ -71,6 +72,7 @@ void plotParticlesXYZ(int iteration);
  */
 //void testParticleContainer();
 
+static LoggerPtr logger(Logger::getLogger("global"));
 LoggerPtr loggerMain(log4cxx::Logger::getLogger("main"));
 LoggerPtr loggerParticle(log4cxx::Logger::getLogger("Particle"));
 
@@ -93,7 +95,7 @@ int main(int argc, char* argsv[]) {
 //	BasicConfigurator::configure();
 
 
-	LOG4CXX_INFO (loggerMain, "Hello from MolSim for PSE!" );
+	LOG4CXX_INFO (logger, "Hello from MolSim for PSE!" );
 	if (strcmp(argsv[1],"-test")==0){
 		if (argc == 2){
 			CppUnit::TestRunner runner;
@@ -133,7 +135,9 @@ int main(int argc, char* argsv[]) {
 			ParticleGenerator pg(particles, argsv[2]);
 		}
 		else{
-			cout << "Erroneous program call! " << endl;
+//			cout << "Erroneous program call! " << endl;
+			LOG4CXX_FATAL(logger, "Erroneous program call!");
+			return 0;
 		}
 		end_time = atof(argsv[3]);
 		delta_t = atof(argsv[4]);
@@ -206,12 +210,17 @@ int main(int argc, char* argsv[]) {
 			plotParticles(iteration);
 			plotParticlesXYZ(iteration);
 		}
-		cout << "Iteration " << iteration << " finished." << endl;
+		stringstream ss;
+		ss << iteration;
+
+//		cout << "Iteration " << iteration << " finished." << endl;
+		LOG4CXX_INFO(logger, "Iteration " + ss.str() + " finished.");
 
 		current_time += delta_t;
 	}
 
-	cout << "output written. Terminating..." << endl;
+//	cout << "output written. Terminating..." << endl;
+	LOG4CXX_INFO(logger, "Output written. Terminating...");
 	return 0;
 }
 
