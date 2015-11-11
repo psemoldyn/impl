@@ -9,7 +9,6 @@
 #define PARTICLE_H_
 
 #include "utils/Vector.h"
-#include "LoggerHeader.h"
 
 #include <log4cxx/logger.h>
 
