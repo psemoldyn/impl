@@ -70,7 +70,7 @@ ParticleGenerator::ParticleGenerator(ParticleContainer& particles, char* filenam
      //     		datastream >> bm;
 
           	//maybe use arrays for the class attributes so all cuboids can be saved?
-          	generateParticles(particles);
+          	generateParticles(particles, i);
 
         	}
 
@@ -83,7 +83,7 @@ ParticleGenerator::ParticleGenerator(ParticleContainer& particles, char* filenam
 
 ParticleGenerator::ParticleGenerator(ParticleContainer& particles, utils::Vector<double, 3> start, int x, int y,
 								int z, double h, double m,
-								utils::Vector<double, 3> v, double bm):
+								utils::Vector<double, 3> v, double bm, int type):
 //										particles(particles),
 										firstParticle(start),
 										x(x),
@@ -101,26 +101,26 @@ ParticleGenerator::ParticleGenerator(ParticleContainer& particles, utils::Vector
 	else{
 		dim = 3;
 	}
-	generateParticles(particles);
+	generateParticles(particles, type);
 								}
 
-void ParticleGenerator::generateParticlesX(ParticleContainer& particles, int n){
+void ParticleGenerator::generateParticlesX(ParticleContainer& particles, int n, int type){
 
 	for (int i = 0; i < n; i++){
 		utils::Vector<double, 3> cP = currentParticle;
 		cP[0] += h*i;
-		Particle p(cP,v,mass);
-		cout << p << endl;
+		Particle p(cP,v,mass,type);
+		LOG4CXX_INFO(logger, "Generated particle: " + p.toString());
 		MaxwellBoltzmannDistribution(p,bm,dim);
 		particles.add(p);
 	}
 
 }
 
-void ParticleGenerator::generateParticles(ParticleContainer& particles){
+void ParticleGenerator::generateParticles(ParticleContainer& particles, int type){
 	for (int i= 0; i < z; i++){
 		for (int j = 0; j < y; j++){
-			generateParticlesX(particles, x);
+			generateParticlesX(particles, x, type);
 			currentParticle[1] += h;
 			stringstream ss;
 			ss << j+1;

@@ -76,6 +76,13 @@ int main(int argc, char* argsv[]) {
 	PropertyConfigurator::configure("log.cfg");
 	LOG4CXX_INFO (logger, "Hello from MolSim for PSE!" );
 
+	if (argc < 2){
+		LOG4CXX_FATAL(logger,"Erroneous program call! Please type the end time and time step, then c for a file "
+				"containing cuboids or l for a file containing a list of particles, followed by the filename. ALternatively, "
+				"type the parameters of the cuboids you want to create. ");
+		return 0;
+	}
+
 	if (strcmp(argsv[1],"-test")==0){
 		if (argc == 2){
 			CppUnit::TestRunner runner;
@@ -107,12 +114,16 @@ int main(int argc, char* argsv[]) {
 
 	//pass "l" for a list of particles, "c" for a cuboid as the second argument
 	else if (argc == 5){
-		if (*argsv[1] == 'l'){
+
+		end_time = atof(argsv[1]);
+		delta_t = atof(argsv[2]);
+
+		if (*argsv[3] == 'l'){
 			FileReader fileReader;
-			fileReader.readFile(particles, argsv[2]);
+			fileReader.readFile(particles, argsv[4]);
 		}
-		else if (*argsv[1]=='c'){
-			ParticleGenerator pg(particles, argsv[2]);
+		else if (*argsv[3]=='c'){
+			ParticleGenerator pg(particles, argsv[4]);
 		}
 		else{
 			LOG4CXX_FATAL(logger, "Erroneous program call! Please type the end time and time step, then c for a file "
@@ -120,8 +131,7 @@ int main(int argc, char* argsv[]) {
 				"type the parameters of the cuboids you want to create. ");
 			return 0;
 		}
-		end_time = atof(argsv[3]);
-		delta_t = atof(argsv[4]);
+
 	}
 	else {
 		end_time = atof(argsv[1]);
@@ -160,7 +170,7 @@ int main(int argc, char* argsv[]) {
 				bm = 0.1;
 //			}
 
-			ParticleGenerator pg(particles, posFirstParticle,lengthX,lengthY,lengthZ,distance,mass,velocity,bm);
+			ParticleGenerator pg(particles, posFirstParticle,lengthX,lengthY,lengthZ,distance,mass,velocity,bm,c);
 		}
 
 	}
@@ -218,8 +228,8 @@ void calculateF() {
 				Particle& p2 = particles[j];
 
 				double norm = (p1.getX()-p2.getX()).L2Norm();
-				p1.getF() = p1.getF() + 24.0*epsilon/norm*(pow(sigma/norm,6)-2*pow(sigma/norm,12))*(p2.getX()-p1.getX());
-				p2.getF() = p2.getF() - 24.0*epsilon/norm*(pow(sigma/norm,6)-2*pow(sigma/norm,12))*(p2.getX()-p1.getX());
+				p1.getF() = p1.getF() + 24.0*epsilon/(pow(norm,2))*(pow(sigma/norm,6)-2*pow(sigma/norm,12))*(p2.getX()-p1.getX());
+				p2.getF() = p2.getF() - 24.0*epsilon/(pow(norm,2))*(pow(sigma/norm,6)-2*pow(sigma/norm,12))*(p2.getX()-p1.getX());
 		}
 	}
 }

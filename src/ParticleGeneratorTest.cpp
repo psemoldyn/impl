@@ -27,7 +27,7 @@ void ParticleGeneratorTest::setUp(){
 	fp[1] = 1;
 	fp[2] = 0;
 	utils::Vector<double, 3> fp1(fp);
-	ParticleGenerator pg(pc, fp1, 12, 8, 5, 1, 1, fp1 ,0.1);
+	ParticleGenerator pg(pc, fp1, 12, 8, 5, 1, 1, fp1 ,0.1,0);
 }
 
 void ParticleGeneratorTest::testNumParticles(){

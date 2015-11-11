@@ -75,12 +75,12 @@ private:
 	/**
 	 * Generates particles on the x-axis
 	 */
-	void generateParticlesX(ParticleContainer& particles, int n);
+	void generateParticlesX(ParticleContainer& particles, int n, int type);
 
 	/**
 	 * Generates the particles
 	 */
-	void generateParticles(ParticleContainer& partciles);
+	void generateParticles(ParticleContainer& particles, int type);
 
 public:
 
@@ -92,7 +92,7 @@ public:
 	/**
 	 * Uses the input parameters from the command line
 	 */
-	ParticleGenerator(ParticleContainer& particles, utils::Vector<double, 3> start, int x, int y, int z, double h, double mass, utils::Vector<double, 3> v, double bm);
+	ParticleGenerator(ParticleContainer& particles, utils::Vector<double, 3> start, int x, int y, int z, double h, double mass, utils::Vector<double, 3> v, double bm, int type);
 
 
 };

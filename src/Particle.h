@@ -9,6 +9,11 @@
 #define PARTICLE_H_
 
 #include "utils/Vector.h"
+#include "LoggerHeader.h"
+
+#include <log4cxx/logger.h>
+
+using namespace log4cxx;
 
 class Particle {
 
@@ -35,6 +40,7 @@ private:
 	int type;
 
 public:
+
 	Particle(int type = 0);
 
 	Particle(const Particle& other);
