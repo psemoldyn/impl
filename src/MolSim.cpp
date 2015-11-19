@@ -6,6 +6,7 @@
 #include "ParticleGenerator.h"
 #include "ParticleContainerTest.h"
 #include "ParticleGeneratorTest.h"
+#include "MaxwellBoltzmannDistribution.h"
 
 #include <list>
 #include <sstream>
@@ -70,7 +71,7 @@ double end_time = 1000;
 double delta_t = 0.014;
 
 ParticleContainer particles;
-
+vector< vector<int> > dims;
 
 int main(int argc, char* argsv[]) {
 	PropertyConfigurator::configure("log.cfg");
@@ -123,7 +124,19 @@ int main(int argc, char* argsv[]) {
 			fileReader.readFile(particles, argsv[4]);
 		}
 		else if (*argsv[3]=='c'){
+//			size_t particles_old = particles.size();
+			LOG4CXX_DEBUG(logger, "Gen. part");
 			ParticleGenerator pg(particles, argsv[4]);
+
+			//HORRIBLE! use a pointer to pg.dims, this is way too much work. i couldn't figure it out.
+			dims = vector< vector<int> >(pg.dims.size());
+			for (int c = 0; c<pg.dims.size();c++){
+				dims[c]=vector<int>(2);
+				dims[c][0]=pg.dims[c][0];
+				dims[c][1]=pg.dims[c][1];
+				LOG4CXX_INFO(logger, pg.dims[c][1]);
+			}
+
 		}
 		else{
 			LOG4CXX_FATAL(logger, "Erroneous program call! Please type the end time and time step, then c for a file "
@@ -133,6 +146,7 @@ int main(int argc, char* argsv[]) {
 		}
 
 	}
+//maybe remove, unnecessarily complicated code and not very practical
 	else {
 		end_time = atof(argsv[1]);
 		delta_t = atof(argsv[2]);
@@ -145,6 +159,7 @@ int main(int argc, char* argsv[]) {
 		utils::Vector<double, 3> velocity;
 		double bm;
 
+//		dimensions[(argc-3)%11];
 		//11 arguments for each cuboid
 		for (int c=0; c<(argc-3)/11; c++){
 			for (int i=0; i<3; i++){
@@ -232,6 +247,7 @@ void calculateF() {
 				p2.getF() = p2.getF() - 24.0*epsilon/(pow(norm,2))*(pow(sigma/norm,6)-2*pow(sigma/norm,12))*(p2.getX()-p1.getX());
 		}
 	}
+
 }
 
 void calculateX() {
@@ -244,10 +260,24 @@ void calculateX() {
 }
 
 void calculateV() {
+	int cuboid=0;
 	for (size_t i = 0; i < particles.size(); i++){
 		Particle& p = particles[i];
+
 		// calculate velocity
 		p.getV() = p.getV()+delta_t/(2*p.getM())*(p.getOldF()+p.getF());
+		//save dimension of each cuboid somewhere
+		// i mod number particles in first cuboid = 0 => first cuboid, read dim
+		// i mod -||- = 1 => second cuboid. remove frist for simpler comparison
+		int dim;
+		if (i % dims[cuboid][0] < dims[cuboid][0]){
+			dim = dims[cuboid][1];
+		}
+		else{
+			cuboid++;
+			dim = dims[cuboid][1];
+		}
+		MaxwellBoltzmannDistribution(p,0.1,dim);
 	}
 }
 

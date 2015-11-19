@@ -10,7 +10,6 @@
 
 #include "ParticleContainer.h"
 #include "utils/Vector.h"
-#include "MaxwellBoltzmannDistribution.h"
 
 #include <fstream>
 #include <sstream>
@@ -66,10 +65,6 @@ private:
 	 */
 	utils::Vector<double, 3> currentParticle;
 
-	/**
-	 * Dimensions of the cuboid
-	 */
-	int dim;
 
 
 	/**
@@ -83,6 +78,10 @@ private:
 	void generateParticles(ParticleContainer& particles, int type);
 
 public:
+	/**
+	 * Dimensions of the cuboids
+	 */
+	vector< vector<int> > dims;
 
 	/**
 	 * Reads the input parameters from a file

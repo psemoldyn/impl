@@ -30,7 +30,13 @@ ParticleGenerator::ParticleGenerator(ParticleContainer& particles, char* filenam
        	istringstream numstream(input);
         numstream >> numCuboids;
 
+    	dims = vector< vector<int> >(numCuboids);
+    	for (int c = 0; c<numCuboids; c++){
+    		dims[c] = vector<int>(2);
+    	}
 
+
+        //dims[numCuboids];
         for (int i = 0; i < numCuboids; i++) {
         	getline(inputFile, input);
            	LOG4CXX_INFO(logger, "Read line: " + input);
@@ -71,8 +77,26 @@ ParticleGenerator::ParticleGenerator(ParticleContainer& particles, char* filenam
 
           	//maybe use arrays for the class attributes so all cuboids can be saved?
           	generateParticles(particles, i);
+			LOG4CXX_INFO(logger, "After gen in PG");
 
-        	}
+
+          	//save dimension of each cuboid
+          	dims[i][0]=x*y*z;
+
+			LOG4CXX_INFO(logger, dims[i][0]);
+
+          	if (z==1){
+          		dims[i][1] = 2;
+
+          	}
+          	else{
+          		dims[i][1] = 3;
+          	}
+
+			LOG4CXX_INFO(logger, dims[i][1]);
+
+			LOG4CXX_INFO(logger, &dims);
+        }
 
 
     }
@@ -80,6 +104,7 @@ ParticleGenerator::ParticleGenerator(ParticleContainer& particles, char* filenam
 
 
 }
+
 
 ParticleGenerator::ParticleGenerator(ParticleContainer& particles, utils::Vector<double, 3> start, int x, int y,
 								int z, double h, double m,
@@ -95,12 +120,22 @@ ParticleGenerator::ParticleGenerator(ParticleContainer& particles, utils::Vector
 										bm(bm),
 										currentParticle(start)
 								{
-	if (z == 1){
-		dim = 2;
+	int d;
+	if (z==1){
+		d=2;
 	}
 	else{
-		dim = 3;
+		d=3;
 	}
+
+	dims = vector< vector<int> >();
+//	dims[cuboid][0]=x*y*z;
+//	dims[cuboid++][1] = d;
+//	int toadd[]={x*y*z,d};
+	vector<int> toadd;
+	toadd[0]=x*y*z;
+	toadd[1]=d;
+	dims.push_back(toadd);
 	generateParticles(particles, type);
 								}
 
@@ -111,7 +146,6 @@ void ParticleGenerator::generateParticlesX(ParticleContainer& particles, int n, 
 		cP[0] += h*i;
 		Particle p(cP,v,mass,type);
 		LOG4CXX_INFO(logger, "Generated particle: " + p.toString());
-		MaxwellBoltzmannDistribution(p,bm,dim);
 		particles.add(p);
 	}
 
