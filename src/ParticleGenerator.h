@@ -9,6 +9,7 @@
 #define SRC_PARTICLEGENERATOR_H_
 
 #include "ParticleContainer.h"
+#include "ParticleContainerLC.h"
 #include "utils/Vector.h"
 
 #include <fstream>
@@ -64,7 +65,6 @@ private:
 	 * Position of the first particle in a given row
 	 */
 	utils::Vector<double, 3> currentParticle;
-
 
 
 	/**

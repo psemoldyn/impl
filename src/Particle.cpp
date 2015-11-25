@@ -18,10 +18,12 @@ Particle::Particle(int type_arg) {
 	LOG4CXX_INFO(logger, "Particle generated!");
 	f = 0.0;
 	old_f = 0.0;
+	old_x = 0;
 }
 
 Particle::Particle(const Particle& other) {
 	x = other.x;
+	old_x = other.old_x;
 	v = other.v;
 	f = other.f;
 	old_f = other.old_f;
@@ -42,6 +44,7 @@ Particle::Particle(	utils::Vector<double, 3> x_arg,
 {
     f = 0.0;
     old_f = 0.0;
+    old_x = 0;
 
 //    loggerParticle =
     LOG4CXX_INFO(logger, "Particle generated!");
@@ -54,6 +57,10 @@ Particle::~Particle() {
 
 utils::Vector<double, 3>& Particle::getX() {
 	return x;
+}
+
+utils::Vector<double, 3>& Particle::getOldX(){
+	return old_x;
 }
 
 utils::Vector<double, 3>& Particle::getV() {

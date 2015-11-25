@@ -77,32 +77,19 @@ ParticleGenerator::ParticleGenerator(ParticleContainer& particles, char* filenam
 
           	//maybe use arrays for the class attributes so all cuboids can be saved?
           	generateParticles(particles, i);
-			LOG4CXX_INFO(logger, "After gen in PG");
-
 
           	//save dimension of each cuboid
           	dims[i][0]=x*y*z;
 
-			LOG4CXX_INFO(logger, dims[i][0]);
-
           	if (z==1){
           		dims[i][1] = 2;
-
           	}
+
           	else{
           		dims[i][1] = 3;
           	}
-
-			LOG4CXX_INFO(logger, dims[i][1]);
-
-			LOG4CXX_INFO(logger, &dims);
         }
-
-
     }
-
-
-
 }
 
 
@@ -147,8 +134,7 @@ void ParticleGenerator::generateParticlesX(ParticleContainer& particles, int n, 
 		Particle p(cP,v,mass,type);
 		LOG4CXX_INFO(logger, "Generated particle: " + p.toString());
 		particles.add(p);
-	}
-
+		}
 }
 
 void ParticleGenerator::generateParticles(ParticleContainer& particles, int type){

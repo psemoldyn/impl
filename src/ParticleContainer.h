@@ -9,15 +9,17 @@
 #define PARTICLECONTAINER_H_
 
 #include "Particle.h"
+#include "utils/Vector.h"
 
 #include <vector>
+#include <list>
 #include <iostream>
 
 using namespace std;
 
 class ParticleContainer {
 
-private:
+protected:
 	vector<Particle> particles;
 
 public:

@@ -21,6 +21,9 @@ private:
 	/** the position of the particle */
 	utils::Vector<double, 3> x;
 
+	/** the position of the particle in the previous time step */
+	utils::Vector<double, 3> old_x;
+
 	/** the velocity of the particle */
 	utils::Vector<double, 3> v;
 
@@ -56,6 +59,8 @@ public:
 	virtual ~Particle();
 
 	utils::Vector<double, 3>& getX();
+
+	utils::Vector<double, 3>& getOldX();
 
 	utils::Vector<double, 3>& getF();
 

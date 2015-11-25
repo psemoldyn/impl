@@ -3,6 +3,7 @@
 #include "outputWriter/VTKWriter.h"
 #include "FileReader.h"
 #include "ParticleContainer.h"
+#include "ParticleContainerLC.h"
 #include "ParticleGenerator.h"
 #include "ParticleContainerTest.h"
 #include "ParticleGeneratorTest.h"
@@ -69,9 +70,14 @@ static LoggerPtr logger(Logger::getLogger("global"));
 double start_time = 0;
 double end_time = 1000;
 double delta_t = 0.014;
+double r_cut;
+vector<int> domainSize = vector<int>(2);
 
-ParticleContainer particles;
+ParticleContainerLC particles;
+//ParticleContainer particlesLC;
 vector< vector<int> > dims;
+
+vector<list<Particle>*> grid;
 
 int main(int argc, char* argsv[]) {
 	PropertyConfigurator::configure("log.cfg");
@@ -106,7 +112,8 @@ int main(int argc, char* argsv[]) {
 		return 0;
 	}
 
-	else if (argc < 5) {
+
+	else if (argc < 8) {
 		LOG4CXX_FATAL(logger,"Erroneous program call! Please type the end time and time step, then c for a file "
 				"containing cuboids or l for a file containing a list of particles, followed by the filename. ALternatively, "
 				"type the parameters of the cuboids you want to create. ");
@@ -114,27 +121,54 @@ int main(int argc, char* argsv[]) {
 	}
 
 	//pass "l" for a list of particles, "c" for a cuboid as the second argument
-	else if (argc == 5){
+	else if (argc == 8 || argc == 9){
+
+		LOG4CXX_INFO(logger, "Start reading args");
+
 
 		end_time = atof(argsv[1]);
+
 		delta_t = atof(argsv[2]);
+
+
+
+		r_cut = atof(argsv[5]);
+
+		domainSize[0]=atoi(argsv[6]);
+
+		domainSize[1]=atoi(argsv[7]);
+
+
+		if (argc == 9){
+			domainSize[2]=atoi(argsv[8]);
+		}
+
+	//	particles = ParticleContainerLC(r_cut, domainSize);
 
 		if (*argsv[3] == 'l'){
 			FileReader fileReader;
 			fileReader.readFile(particles, argsv[4]);
 		}
 		else if (*argsv[3]=='c'){
-//			size_t particles_old = particles.size();
-			LOG4CXX_DEBUG(logger, "Gen. part");
+
 			ParticleGenerator pg(particles, argsv[4]);
 
-			//HORRIBLE! use a pointer to pg.dims, this is way too much work. i couldn't figure it out.
+			particles.init(r_cut, domainSize);
+			LOG4CXX_INFO(logger, "LCC created in MolSim");
+
+			grid = particles.getGrid();
+
+
+			LOG4CXX_INFO(logger, "Particles " << particles.size());
+
+
+			//HORRIBLE! use a pointer to pg.dims, this is way too inefficient. i couldn't figure it out.
 			dims = vector< vector<int> >(pg.dims.size());
 			for (int c = 0; c<pg.dims.size();c++){
 				dims[c]=vector<int>(2);
 				dims[c][0]=pg.dims[c][0];
 				dims[c][1]=pg.dims[c][1];
-				LOG4CXX_INFO(logger, pg.dims[c][1]);
+//				LOG4CXX_INFO(logger, pg.dims[c][1]);
 			}
 
 		}
@@ -202,6 +236,7 @@ int main(int argc, char* argsv[]) {
 	while (current_time < end_time) {
 		// calculate new x
 		calculateX();
+		particles.updateGrid();
 
 		// calculate new f
 		calculateF();
@@ -227,6 +262,64 @@ int main(int argc, char* argsv[]) {
 
 
 void calculateF() {
+	list<Particle>::iterator iter;
+	list<Particle>::iterator innerIter;
+	list<list<Particle>*>::iterator neighborsIter;
+
+	float epsilon = 5.0;
+	float sigma = 1.0;
+
+
+	LOG4CXX_INFO(logger, "Particles " << particles.size());
+	iter = grid[366]->begin();
+	Particle& p = *iter;
+	LOG4CXX_INFO(logger, "Part1 " << particles[0].toString());
+	LOG4CXX_INFO(logger, "Part1 " << p.toString());
+
+	int length = particles.getGridDim()[0]*
+			particles.getGridDim()[1]*
+			particles.getGridDim()[2];
+	LOG4CXX_INFO(logger, "got length");
+
+	for (int i = 0; i < length; i++){
+		if (grid[i]){
+		for (iter = grid[i]->begin(); iter != grid[i]->end(); iter++){
+			Particle& p1 = *iter;
+			p1.getOldF() = p1.getF();
+			p1.getF() = 0;
+			list<list<Particle>*> neighbors = particles.findNeighbors(i);
+//			LOG4CXX_INFO(logger, "neighbors " << neighbors.size());
+			for (neighborsIter = neighbors.begin(); neighborsIter != neighbors.end(); neighborsIter++){
+				list<Particle>& neighbor = **neighborsIter;
+//				LOG4CXX_INFO(logger, "neighbor " << neighbor.size());
+				for (innerIter = neighbor.begin(); innerIter != neighbor.end(); innerIter++){
+					Particle& p2 = *innerIter;
+
+//					LOG4CXX_INFO(logger, "neighbor " << p2.toString());
+
+					if (!(p1== p2)){
+
+					double distance = (p1.getX()-p2.getX()).L2Norm();
+//					LOG4CXX_INFO(logger, "dist " << distance);
+
+
+					if (distance <= r_cut){
+						p1.getF() = p1.getF() + 24.0*epsilon/(pow(distance,2))*(pow(sigma/distance,6)-2*pow(sigma/distance,12))*(p2.getX()-p1.getX());
+					}
+					}
+
+				}
+			}
+
+			LOG4CXX_INFO(logger, "calculated force" << p1.toString());
+
+		}
+		}
+	}
+}
+
+
+void calcF(){
 	float epsilon = 5.0;
 	float sigma = 1.0;
 	//set force for all particles to 0
@@ -250,9 +343,14 @@ void calculateF() {
 
 }
 
+
+
 void calculateX() {
+	LOG4CXX_INFO(logger, "calculated force");
+
 	for (size_t i = 0; i < particles.size(); i++){
 		Particle& p = particles[i];
+		p.getOldX() = p.getX();
 		// calculate X
 		// this function is called before calculateF() (except for initial forces), so it uses f and not old_f (since f hasn"t been updated yet)
 		p.getX() = p.getX()+delta_t*p.getV()+pow(delta_t,2)/(2*p.getM())*p.getF();
