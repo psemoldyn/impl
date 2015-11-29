@@ -138,6 +138,8 @@ int main(int argc, char* argsv[]) {
 
 		domainSize[1]=atoi(argsv[7]);
 
+		domainSize[2] = 0;
+
 
 		if (argc == 9){
 			domainSize[2]=atoi(argsv[8]);
@@ -153,15 +155,6 @@ int main(int argc, char* argsv[]) {
 
 			ParticleGenerator pg(particles, argsv[4]);
 
-			particles.init(r_cut, domainSize);
-			LOG4CXX_INFO(logger, "LCC created in MolSim");
-
-			grid = particles.getGrid();
-
-
-			LOG4CXX_INFO(logger, "Particles " << particles.size());
-
-
 			//HORRIBLE! use a pointer to pg.dims, this is way too inefficient. i couldn't figure it out.
 			dims = vector< vector<int> >(pg.dims.size());
 			for (int c = 0; c<pg.dims.size();c++){
@@ -172,6 +165,7 @@ int main(int argc, char* argsv[]) {
 			}
 
 		}
+
 		else{
 			LOG4CXX_FATAL(logger, "Erroneous program call! Please type the end time and time step, then c for a file "
 				"containing cuboids or l for a file containing a list of particles, followed by the filename. ALternatively, "
@@ -223,6 +217,15 @@ int main(int argc, char* argsv[]) {
 		}
 
 	}
+
+	//set up for use of Linked Cell Method
+	particles.init(r_cut, domainSize);
+	LOG4CXX_INFO(logger, "LCC created in MolSim");
+
+	grid = particles.getGrid();
+
+
+	LOG4CXX_INFO(logger, "Particles " << particles.size());
 
 
 	// the forces are needed to calculate x, but are not given in the input file.
@@ -287,6 +290,82 @@ void calculateF() {
 			Particle& p1 = *iter;
 			p1.getOldF() = p1.getF();
 			p1.getF() = 0;
+
+			//reflecting boundary conditions
+			//right boundary
+			if (abs(p1.getX()[0]-domainSize[0])< pow(2,1/6.0)*sigma){
+				double x[3] = {domainSize[0], p1.getX()[1], p1.getX()[2]};
+				utils::Vector<double, 3> v = p1.getV();
+				Particle counterParticle(x,v,p1.getM());
+
+				double distance = (p1.getX()-counterParticle.getX()).L2Norm();
+
+				p1.getF() = p1.getF() + 24.0*epsilon/(pow(distance,2))*(pow(sigma/distance,6)-2*pow(sigma/distance,12))*(counterParticle.getX()-p1.getX());
+
+			}
+
+			//left boundary
+			if (abs(p1.getX()[0])< pow(2,1/6.0)*sigma){
+				double x[3] = {0, p1.getX()[1], p1.getX()[2]};
+				utils::Vector<double, 3> v = p1.getV();
+				Particle counterParticle(x,v,p1.getM());
+
+				double distance = (p1.getX()-counterParticle.getX()).L2Norm();
+
+				p1.getF() = p1.getF() + 24.0*epsilon/(pow(distance,2))*(pow(sigma/distance,6)-2*pow(sigma/distance,12))*(counterParticle.getX()-p1.getX());
+
+			}
+
+			//upper boundary
+			if (abs(p1.getX()[1]-domainSize[1])< pow(2,1/6.0)*sigma){
+				double x[3] = {p1.getX()[0], domainSize[1], p1.getX()[2]};
+				utils::Vector<double, 3> v = p1.getV();
+				Particle counterParticle(x,v,p1.getM());
+
+				double distance = (p1.getX()-counterParticle.getX()).L2Norm();
+
+				p1.getF() = p1.getF() + 24.0*epsilon/(pow(distance,2))*(pow(sigma/distance,6)-2*pow(sigma/distance,12))*(counterParticle.getX()-p1.getX());
+
+			}
+
+			//lower boundary
+			if (abs(p1.getX()[1])< pow(2,1/6.0)*sigma){
+				double x[3] = {p1.getX()[0], 0, p1.getX()[2]};
+				utils::Vector<double, 3> v = p1.getV();
+				Particle counterParticle(x,v,p1.getM());
+
+				double distance = (p1.getX()-counterParticle.getX()).L2Norm();
+
+				p1.getF() = p1.getF() + 24.0*epsilon/(pow(distance,2))*(pow(sigma/distance,6)-2*pow(sigma/distance,12))*(counterParticle.getX()-p1.getX());
+
+			}
+
+			//back boundary
+			if (abs(p1.getX()[2]-domainSize[2])< pow(2,1/6.0)*sigma){
+				double x[3] = {p1.getX()[0], p1.getX()[1], domainSize[2]};
+				utils::Vector<double, 3> v = p1.getV();
+				Particle counterParticle(x,v,p1.getM());
+
+				double distance = (p1.getX()-counterParticle.getX()).L2Norm();
+
+				p1.getF() = p1.getF() + 24.0*epsilon/(pow(distance,2))*(pow(sigma/distance,6)-2*pow(sigma/distance,12))*(counterParticle.getX()-p1.getX());
+
+			}
+
+			//front boundary
+			if (abs(p1.getX()[2])< pow(2,1/6.0)*sigma){
+				double x[3] = {p1.getX()[0], p1.getX()[1], 0};
+				utils::Vector<double, 3> v = p1.getV();
+				Particle counterParticle(x,v,p1.getM());
+
+				double distance = (p1.getX()-counterParticle.getX()).L2Norm();
+
+				p1.getF() = p1.getF() + 24.0*epsilon/(pow(distance,2))*(pow(sigma/distance,6)-2*pow(sigma/distance,12))*(counterParticle.getX()-p1.getX());
+
+			}
+
+
+
 			list<list<Particle>*> neighbors = particles.findNeighbors(i);
 //			LOG4CXX_INFO(logger, "neighbors " << neighbors.size());
 			for (neighborsIter = neighbors.begin(); neighborsIter != neighbors.end(); neighborsIter++){
@@ -299,13 +378,13 @@ void calculateF() {
 
 					if (!(p1== p2)){
 
-					double distance = (p1.getX()-p2.getX()).L2Norm();
-//					LOG4CXX_INFO(logger, "dist " << distance);
+						double distance = (p1.getX()-p2.getX()).L2Norm();
+//						LOG4CXX_INFO(logger, "dist " << distance);
 
 
-					if (distance <= r_cut){
-						p1.getF() = p1.getF() + 24.0*epsilon/(pow(distance,2))*(pow(sigma/distance,6)-2*pow(sigma/distance,12))*(p2.getX()-p1.getX());
-					}
+						if (distance <= r_cut){
+							p1.getF() = p1.getF() + 24.0*epsilon/(pow(distance,2))*(pow(sigma/distance,6)-2*pow(sigma/distance,12))*(p2.getX()-p1.getX());
+						}
 					}
 
 				}
@@ -318,7 +397,7 @@ void calculateF() {
 	}
 }
 
-
+/*
 void calcF(){
 	float epsilon = 5.0;
 	float sigma = 1.0;
@@ -343,7 +422,7 @@ void calcF(){
 
 }
 
-
+*/
 
 void calculateX() {
 	LOG4CXX_INFO(logger, "calculated force");

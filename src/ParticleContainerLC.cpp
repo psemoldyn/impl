@@ -275,15 +275,15 @@ void ParticleContainerLC::updateGrid(){
 		old_cell_y = oldPosition[1]/r_cut;
 		old_cell_z = oldPosition[2]/r_cut;
 
-		oldCell = n_z*n_y*old_cell_z + n_x*old_cell_y + old_cell_x;
+		oldCell = n_x*n_y*old_cell_z + n_x*old_cell_y + old_cell_x;
 
 		new_cell_x = newPosition[0]/r_cut;
 		new_cell_y = newPosition[1]/r_cut;
 		new_cell_z = newPosition[2]/r_cut;
 
-		newCell = n_z*n_y*new_cell_z + n_x*new_cell_y + new_cell_x;
+		newCell = n_x*n_y*new_cell_z + n_x*new_cell_y + new_cell_x;
 
-		if (oldCell != newCell){
+		if (oldCell != newCell && new_cell_x < n_x && new_cell_y < n_y && new_cell_z < n_z){
 			list<Particle>::iterator i;
 			for(i = grid[oldCell]->begin(); i != grid[oldCell]->end(); i++){
 				Particle& p2 = *i;
