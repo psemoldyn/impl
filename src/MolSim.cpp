@@ -7,6 +7,7 @@
 #include "ParticleGenerator.h"
 #include "ParticleContainerTest.h"
 #include "ParticleGeneratorTest.h"
+#include "ParticleContainerLCTest.h"
 #include "MaxwellBoltzmannDistribution.h"
 
 #include <list>
@@ -71,13 +72,13 @@ double start_time = 0;
 double end_time = 1000;
 double delta_t = 0.014;
 double r_cut;
-vector<int> domainSize = vector<int>(2);
+vector<int> domainSize = vector<int>(3);
 
 ParticleContainerLC particles;
 //ParticleContainer particlesLC;
 vector< vector<int> > dims;
 
-vector<list<Particle>*> grid;
+vector<list<Particle*>*>* grid;
 
 int main(int argc, char* argsv[]) {
 	PropertyConfigurator::configure("log.cfg");
@@ -95,7 +96,8 @@ int main(int argc, char* argsv[]) {
 			CppUnit::TestRunner runner;
 			TestResult result;
 			runner.addTest(ParticleContainerTest::suite());
-			runner.addTest(ParticleGeneratorTest::suite());
+//			runner.addTest(ParticleGeneratorTest::suite());
+			runner.addTest(ParticleContainerLCTest::suite());
 			runner.run(result);
 		}
 
@@ -174,49 +176,6 @@ int main(int argc, char* argsv[]) {
 		}
 
 	}
-//maybe remove, unnecessarily complicated code and not very practical
-	else {
-		end_time = atof(argsv[1]);
-		delta_t = atof(argsv[2]);
-		utils::Vector<double, 3> posFirstParticle;
-		int lengthX;
-		int lengthY;
-		int lengthZ;
-		double distance;
-		double mass;
-		utils::Vector<double, 3> velocity;
-		double bm;
-
-//		dimensions[(argc-3)%11];
-		//11 arguments for each cuboid
-		for (int c=0; c<(argc-3)/11; c++){
-			for (int i=0; i<3; i++){
-				posFirstParticle[i]=atof(argsv[11*c+3+i]);
-			}
-
-			lengthX = atoi(argsv[11*c+6]);
-			lengthY = atoi(argsv[11*c+7]);
-			lengthZ = atoi(argsv[11*c+8]);
-
-			distance = atof(argsv[11*c+9]);
-			mass = atof(argsv[13*c+10]);
-
-			for (int i=0; i<3; i++){
-				velocity[i] = atof(argsv[11*c+i+11]);
-			}
-
-/*			if (argc == 16){
-				bm = atof(argsv[15]);
-			}
-*/
-//			else{
-				bm = 0.1;
-//			}
-
-			ParticleGenerator pg(particles, posFirstParticle,lengthX,lengthY,lengthZ,distance,mass,velocity,bm,c);
-		}
-
-	}
 
 	//set up for use of Linked Cell Method
 	particles.init(r_cut, domainSize);
@@ -265,19 +224,15 @@ int main(int argc, char* argsv[]) {
 
 
 void calculateF() {
-	list<Particle>::iterator iter;
-	list<Particle>::iterator innerIter;
-	list<list<Particle>*>::iterator neighborsIter;
+	list<Particle*>::iterator iter;
+	list<Particle*>::iterator innerIter;
+	list<list<Particle*>*>::iterator neighborsIter;
 
 	float epsilon = 5.0;
 	float sigma = 1.0;
 
 
 	LOG4CXX_INFO(logger, "Particles " << particles.size());
-	iter = grid[366]->begin();
-	Particle& p = *iter;
-	LOG4CXX_INFO(logger, "Part1 " << particles[0].toString());
-	LOG4CXX_INFO(logger, "Part1 " << p.toString());
 
 	int length = particles.getGridDim()[0]*
 			particles.getGridDim()[1]*
@@ -285,15 +240,15 @@ void calculateF() {
 	LOG4CXX_INFO(logger, "got length");
 
 	for (int i = 0; i < length; i++){
-		if (grid[i]){
-		for (iter = grid[i]->begin(); iter != grid[i]->end(); iter++){
-			Particle& p1 = *iter;
+		if ((*grid)[i]){
+		for (iter = (*grid)[i]->begin(); iter != (*grid)[i]->end(); iter++){
+			Particle& p1 = **iter;
 			p1.getOldF() = p1.getF();
 			p1.getF() = 0;
 
 			//reflecting boundary conditions
 			//right boundary
-			if (abs(p1.getX()[0]-domainSize[0])< pow(2,1/6.0)*sigma){
+			if (abs(p1.getX()[0]-domainSize[0])< pow(2,1/6.0)*sigma && abs(p1.getX()[0]-domainSize[0]) !=0){
 				double x[3] = {domainSize[0], p1.getX()[1], p1.getX()[2]};
 				utils::Vector<double, 3> v = p1.getV();
 				Particle counterParticle(x,v,p1.getM());
@@ -305,7 +260,7 @@ void calculateF() {
 			}
 
 			//left boundary
-			if (abs(p1.getX()[0])< pow(2,1/6.0)*sigma){
+			if (abs(p1.getX()[0])< pow(2,1/6.0)*sigma && abs(p1.getX()[0]) !=0){
 				double x[3] = {0, p1.getX()[1], p1.getX()[2]};
 				utils::Vector<double, 3> v = p1.getV();
 				Particle counterParticle(x,v,p1.getM());
@@ -317,7 +272,7 @@ void calculateF() {
 			}
 
 			//upper boundary
-			if (abs(p1.getX()[1]-domainSize[1])< pow(2,1/6.0)*sigma){
+			if (abs(p1.getX()[1]-domainSize[1])< pow(2,1/6.0)*sigma && abs(p1.getX()[1] - domainSize[1]) !=0){
 				double x[3] = {p1.getX()[0], domainSize[1], p1.getX()[2]};
 				utils::Vector<double, 3> v = p1.getV();
 				Particle counterParticle(x,v,p1.getM());
@@ -329,7 +284,7 @@ void calculateF() {
 			}
 
 			//lower boundary
-			if (abs(p1.getX()[1])< pow(2,1/6.0)*sigma){
+			if (abs(p1.getX()[1])< pow(2,1/6.0)*sigma && abs(p1.getX()[1]) !=0){
 				double x[3] = {p1.getX()[0], 0, p1.getX()[2]};
 				utils::Vector<double, 3> v = p1.getV();
 				Particle counterParticle(x,v,p1.getM());
@@ -339,9 +294,10 @@ void calculateF() {
 				p1.getF() = p1.getF() + 24.0*epsilon/(pow(distance,2))*(pow(sigma/distance,6)-2*pow(sigma/distance,12))*(counterParticle.getX()-p1.getX());
 
 			}
+			if (domainSize[2] != 0){
 
 			//back boundary
-			if (abs(p1.getX()[2]-domainSize[2])< pow(2,1/6.0)*sigma){
+			if (abs(p1.getX()[2]-domainSize[2])< pow(2,1/6.0)*sigma && abs(p1.getX()[2]-domainSize[2]) !=0){
 				double x[3] = {p1.getX()[0], p1.getX()[1], domainSize[2]};
 				utils::Vector<double, 3> v = p1.getV();
 				Particle counterParticle(x,v,p1.getM());
@@ -353,7 +309,7 @@ void calculateF() {
 			}
 
 			//front boundary
-			if (abs(p1.getX()[2])< pow(2,1/6.0)*sigma){
+			if (abs(p1.getX()[2])< pow(2,1/6.0)*sigma && abs(p1.getX()[2]) !=0){
 				double x[3] = {p1.getX()[0], p1.getX()[1], 0};
 				utils::Vector<double, 3> v = p1.getV();
 				Particle counterParticle(x,v,p1.getM());
@@ -363,16 +319,15 @@ void calculateF() {
 				p1.getF() = p1.getF() + 24.0*epsilon/(pow(distance,2))*(pow(sigma/distance,6)-2*pow(sigma/distance,12))*(counterParticle.getX()-p1.getX());
 
 			}
+			}
 
-
-
-			list<list<Particle>*> neighbors = particles.findNeighbors(i);
+			list<list<Particle*>*> neighbors = particles.findNeighbors(i);
 //			LOG4CXX_INFO(logger, "neighbors " << neighbors.size());
 			for (neighborsIter = neighbors.begin(); neighborsIter != neighbors.end(); neighborsIter++){
-				list<Particle>& neighbor = **neighborsIter;
+				list<Particle*>& neighbor = **neighborsIter;
 //				LOG4CXX_INFO(logger, "neighbor " << neighbor.size());
 				for (innerIter = neighbor.begin(); innerIter != neighbor.end(); innerIter++){
-					Particle& p2 = *innerIter;
+					Particle& p2 = **innerIter;
 
 //					LOG4CXX_INFO(logger, "neighbor " << p2.toString());
 

@@ -20,30 +20,65 @@ ParticleContainerLC::~ParticleContainerLC() {
 	// TODO Auto-generated destructor stub
 }
 
+ParticleContainerLC::ParticleContainerLC(double r_cut, vector<int> domainSize){
+	particles = vector<Particle>();
+
+	this->r_cut = r_cut;
+
+	this->domainSize[0] = domainSize[0];
+	this->domainSize[1] = domainSize[1];
+	this->domainSize[2] = domainSize[2];
+
+	n_x = domainSize[0]/(r_cut)+4;
+	n_y = domainSize[1]/(r_cut)+4;
+	n_z = 1;
+	dim = 2;
+	if (domainSize[2] != 0){
+		n_z = domainSize[2]/(r_cut);
+		dim = 3;
+//		grid[n_x*n_y*n_z];
+	}
+
+	grid= vector<list<Particle*>*>(n_x*n_y*n_z);
+
+}
+
 void ParticleContainerLC::init(double r_cut, vector<int> domainSize){
 	this->r_cut = r_cut;
-	if (domainSize.size() == 2){
+
+
+	if (domainSize[2] == 0){
 		dim = 2;
 	}
-	else if (domainSize.size() == 3){
+	else {
 		dim = 3;
 	}
 
-	this->domainSize = domainSize;
-
-	n_x = domainSize[0]/(r_cut);
-	n_y = domainSize[1]/(r_cut);
+	n_x = domainSize[0]/(r_cut)+4;
+	n_y = domainSize[1]/(r_cut)+4;
+	n_z = 1;
 	if (dim == 3){
 		n_z = domainSize[2]/(r_cut);
 //		grid[n_x*n_y*n_z];
-		grid = vector<list<Particle>*>(n_x*n_y*n_z);
 	}
-	//if dim !=3 then it must be dim=2, set grid accordingly
-	else {
-		n_z = 1;
-//		grid[n_x*n_y];
-		grid= vector<list<Particle>*>(n_x*n_y);
-	}
+
+	this->domainSize[0]=domainSize[0];
+	LOG4CXX_INFO(logger,this->domainSize[0]);
+
+	this->domainSize[1]=domainSize[1];
+	LOG4CXX_INFO(logger, this->domainSize[1]);
+
+	this->domainSize[2] = domainSize[2];
+	LOG4CXX_INFO(logger, this->domainSize[2]);
+
+
+//	this->domainSize = domainSize;
+
+
+
+
+	grid= vector<list<Particle*>*>(n_x*n_y*n_z);
+
 
 //	for (int i = 0; i < grid.size(); i++){
 //	}
@@ -59,7 +94,7 @@ void ParticleContainerLC::init(double r_cut, vector<int> domainSize){
 
 	vector<Particle>::iterator iter;
 
-	for (iter = particles.begin(); iter < particles.end(); iter++){
+	for (iter = particles.begin(); iter != particles.end(); iter++){
 		Particle& p = *iter;
 		this->add(p);
 	}
@@ -69,30 +104,43 @@ void ParticleContainerLC::init(double r_cut, vector<int> domainSize){
 }
 
 void ParticleContainerLC::add(Particle& p){
-	//just a basic implementation: think of a way to handle negative coordinates
 	utils::Vector<double, 3> position = p.getX();
+	LOG4CXX_INFO(logger, dim);
+	LOG4CXX_INFO(logger,this->r_cut);
+	LOG4CXX_INFO(logger,&(this->domainSize[0]));
+	LOG4CXX_INFO(logger, &n_x);
+	LOG4CXX_INFO(logger, this->domainSize[1]);
+	LOG4CXX_INFO(logger, this->domainSize[2]);
+	LOG4CXX_INFO(logger, "Adding " + p.toString());
+
+	if ((dim == 2 && position[0]<domainSize[0] && position[1]<domainSize[1]) ||
+		(dim == 3 && position[0]<domainSize[0] && position[1]<domainSize[1] && position[2]<domainSize[2])){
 	//each particle lands in cell position(coord)/factor_coord
 	LOG4CXX_INFO(logger, "Adding " + p.toString());
 
 	int cell_x = position[0]/r_cut;
 	int cell_y = position[1]/r_cut;
 	int cell_z = position[2]/r_cut;
-	LOG4CXX_INFO(logger, "Adding at " << (n_x*n_y*cell_z + n_x*cell_y + cell_x));
+	LOG4CXX_INFO(logger, "Adding at " << (n_x*n_y*cell_z + n_x*(cell_y+2) + cell_x + 2));
 	LOG4CXX_INFO(logger, "grid size " << grid.size());
 
-	if (!grid[n_x*n_y*cell_z + n_x*cell_y + cell_x]){
-		grid[n_x*n_y*cell_z + n_x*cell_y + cell_x] = new list<Particle>();
+	if (!grid[n_x*n_y*cell_z + n_x*(cell_y+2) + cell_x+2]){
+		grid[n_x*n_y*cell_z + n_x*(cell_y+2) + cell_x+2] = new list<Particle*>();
 	}
 
-	grid[n_x*n_y*cell_z + n_x*cell_y + cell_x]->push_back(p);
+	grid[n_x*n_y*cell_z + n_x*(cell_y+2) + cell_x+2]->push_back(&p);
 
 	LOG4CXX_INFO(logger, "Added " + p.toString());
+			}
+	else {
+		LOG4CXX_INFO(logger, "Particle out of bounds");
+	}
 
 
 }
 
-list<list<Particle>*> ParticleContainerLC::findNeighbors(int cell){
-	list<list<Particle>*> neighbors;
+list<list<Particle*>*> ParticleContainerLC::findNeighbors(int cell){
+	list<list<Particle*>*> neighbors;
 
 	//position in grid (a,b,c) or (a,b)
 	int a_pos;
@@ -143,10 +191,10 @@ list<list<Particle>*> ParticleContainerLC::findNeighbors(int cell){
 
 
 				//convert to linearized index
-				ig = n_x*a+b;
+				ig = n_x*(a+2)+b+2;
 
 
-				if (grid[ig]){
+				if (a >= 0 && a < n_y && b >= 0 && b < n_x){
 					neighbors.push_back(grid[ig]);
 				}
 /*				if (i < 4){
@@ -166,8 +214,8 @@ list<list<Particle>*> ParticleContainerLC::findNeighbors(int cell){
 
 	if (dim == 3){
 //		neighbors[26];
-		a_pos = cell / n_x*n_y;
-		b_pos = (cell / n_x) % n_y;
+		a_pos = cell / (n_x*n_y);
+		b_pos = (cell - a_pos*n_x*n_y) / n_x;
 		c_pos = cell % n_x;
 
 		int i = 0;
@@ -216,13 +264,15 @@ list<list<Particle>*> ParticleContainerLC::findNeighbors(int cell){
 				c=c+1;
 			}
 
-			ig = c*n_y*n_x + b*n_x + a;
+			ig = a*n_y*n_x + (b+2)*n_x + c + 2;
 
-			if (grid[ig]){
+			if (a >= 0 && a < n_z && b >= 0 && b < n_y && c >= 0 && c < n_x){
 				neighbors.push_back(grid[ig]);
 
 			}
-			}
+			i++;
+
+		}
 	/*		if (i < 13){
 				neighbors[i] = &grid[ig];
 			}
@@ -232,14 +282,13 @@ list<list<Particle>*> ParticleContainerLC::findNeighbors(int cell){
 			*/
 	//		}
 
-			i++;
 
 			}
 		return neighbors;
 }
 
-vector<list<Particle>*> ParticleContainerLC::getGrid(){
-	return grid;
+vector<list<Particle*>*>* ParticleContainerLC::getGrid(){
+	return &grid;
 }
 
 int* ParticleContainerLC::getGridDim(){
@@ -264,7 +313,6 @@ void ParticleContainerLC::updateGrid(){
 	int new_cell_z;
 
 
-
 	for (iter = particles.begin(); iter != particles.end(); iter++){
 		Particle& p = *iter;
 
@@ -275,30 +323,184 @@ void ParticleContainerLC::updateGrid(){
 		old_cell_y = oldPosition[1]/r_cut;
 		old_cell_z = oldPosition[2]/r_cut;
 
-		oldCell = n_x*n_y*old_cell_z + n_x*old_cell_y + old_cell_x;
+		oldCell = n_x*n_y*old_cell_z + n_x*(old_cell_y+2) + old_cell_x + 2;
 
 		new_cell_x = newPosition[0]/r_cut;
 		new_cell_y = newPosition[1]/r_cut;
 		new_cell_z = newPosition[2]/r_cut;
 
-		newCell = n_x*n_y*new_cell_z + n_x*new_cell_y + new_cell_x;
+		newCell = n_x*n_y*new_cell_z + n_x*(new_cell_y+2) + new_cell_x + 2;
 
-		if (oldCell != newCell && new_cell_x < n_x && new_cell_y < n_y && new_cell_z < n_z){
-			list<Particle>::iterator i;
+		if(oldCell != newCell){
+			list<Particle*>::iterator i;
 			for(i = grid[oldCell]->begin(); i != grid[oldCell]->end(); i++){
-				Particle& p2 = *i;
+				Particle& p2 = **i;
+
+				LOG4CXX_INFO(logger, &p2);
+				LOG4CXX_INFO(logger, &p);
+
 				if (p == p2){
 					grid[oldCell]->erase(i);
 				}
 
 			}
 
+		if ( newPosition[0] < domainSize[0] && newPosition[1] < domainSize[1] && (dim == 2 || newPosition[2] < domainSize[2])){
+
 			if (!grid[newCell]){
-				grid[newCell] = new list<Particle>();
+				grid[newCell] = new list<Particle*>();
 			}
 
-			grid[newCell]->push_back(p);
+			grid[newCell]->push_back(&p);
+
+		}
 		}
 
 	}
 }
+
+list<Particle*> ParticleContainerLC::getBoundaryParticles(){
+	list<Particle*> boundary = list<Particle*>();
+
+	list<Particle*>::iterator iter;
+
+	//if there are 3 dimensions add the boundary for each rectangle in the z-direction
+	for (int r = 0; r < n_z; r++){
+
+	for (int i = 2; i < n_x-2; i++){
+		//a == 0
+		if (grid[i+2*n_x+r*n_x*n_y]){
+		for (iter = grid[i+2*n_x+r*n_x*n_y]->begin(); iter != grid[i+2*n_x+r*n_x*n_y]->end(); iter++){
+			boundary.push_back(*iter);
+		}
+		}
+		LOG4CXX_INFO(logger,"a=0");
+
+		//a == 1
+		if(grid[i+n_x*3+r*n_x*n_y]){
+		for (iter = grid[i+n_x+r*n_x*n_y]->begin(); iter != grid[i+n_x+r*n_x*n_y]->end(); iter++){
+			boundary.push_back(*iter);
+		}
+		}
+		LOG4CXX_INFO(logger,"a=1");
+
+
+		//a == n_y-2
+		if(grid[i+n_x*(n_y-4)]){
+		for (iter = grid[i+n_x*(n_y-4)]->begin(); iter != grid[i+n_x*(n_y-4)+r*n_x*n_y]->end(); iter++){
+			boundary.push_back(*iter);
+		}
+		}
+		LOG4CXX_INFO(logger,"a=y-2");
+
+		//a == n_y-1
+		if(grid[i+n_x*(n_y-3)+r*n_x*n_y]){
+		for (iter = grid[i+n_x*(n_y-3)+r*n_x*n_y]->begin(); iter != grid[i+n_x*(n_y-3)+r*n_x*n_y]->end(); iter++){
+			boundary.push_back(*iter);
+		}
+		}
+		LOG4CXX_INFO(logger,"a=y-1");
+
+	}
+
+	//a==2 to a==n_y-3, since a==0,a==1,a==n_y-2,n_y-1 already handled
+	for (int i = 4; i < n_y-4; i++){
+		//b == 0
+		if (grid[i*n_x+2+r*n_x*n_y]){
+		for (iter = grid[i*n_x+2+r*n_x*n_y]->begin(); iter != grid[i*n_x+2+r*n_x*n_y]->end(); iter++){
+			boundary.push_back(*iter);
+		}
+		}
+		LOG4CXX_INFO(logger,"b=0");
+
+		//b == 1
+		if(grid[i*n_x+3+r*n_x*n_y]){
+		for (iter = grid[i*n_x+3+r*n_x*n_y]->begin(); iter != grid[i*n_x+3+r*n_x*n_y]->end(); iter++){
+			boundary.push_back(*iter);
+		}
+		}
+		LOG4CXX_INFO(logger,"b=1");
+
+		//b == n_x-2
+		if(grid[(i+1)*n_x-4+r*n_x*n_y]){
+		for (iter = grid[(i+1)*n_x-4+r*n_x*n_y]->begin(); iter != grid[(i+1)*n_x-4+r*n_x*n_y]->end(); iter++){
+			boundary.push_back(*iter);
+		}
+		}
+		LOG4CXX_INFO(logger,"b=x-2");
+
+		//b == n_x-1
+		if(grid[(i+1)*n_x-3+r*n_x*n_y]){
+		for (iter = grid[(i+1)*n_x-3+r*n_x*n_y]->begin(); iter != grid[(i+1)*n_x-3+r*n_x*n_y]->end(); iter++){
+			boundary.push_back(*iter);
+		}
+		}
+		LOG4CXX_INFO(logger,"b=x-1");
+
+	}
+	}
+
+
+	return boundary;
+}
+
+list<Particle*> ParticleContainerLC::getHalo(){
+	list<Particle*> halo = list<Particle*>();
+
+	list<Particle*>::iterator iter;
+
+	//if there are 3 dimensions add the boundary for each rectangle in the z-direction
+	for (int r = 0; r < n_z; r++){
+
+	for (int i = 0; i < n_x; i++){
+		//a == 0
+		for (iter = grid[i+r*n_x*n_y]->begin(); iter != grid[i+r*n_x*n_y]->end(); iter++){
+			halo.push_back(*iter);
+		}
+
+		//a == 1
+		for (iter = grid[i+n_x+r*n_x*n_y]->begin(); iter != grid[i+n_x+r*n_x*n_y]->end(); iter++){
+			halo.push_back(*iter);
+		}
+
+		//a == n_y-2
+		for (iter = grid[i+n_x*(n_y-2)]->begin(); iter != grid[i+n_x*(n_y-2)+r*n_x*n_y]->end(); iter++){
+			halo.push_back(*iter);
+		}
+
+		//a == n_y-1
+		for (iter = grid[i+n_x*(n_y-1)+r*n_x*n_y]->begin(); iter != grid[i+n_x*(n_y-1)+r*n_x*n_y]->end(); iter++){
+			halo.push_back(*iter);
+		}
+
+	}
+
+	//a==2 to a==n_y-3, since a==0,a==1,a==n_y-2,n_y-1 already handled
+	for (int i = 2; i < n_y-2; i++){
+		//b == 0
+		for (iter = grid[i*n_x+r*n_x*n_y]->begin(); iter != grid[i*n_x+r*n_x*n_y]->end(); iter++){
+			halo.push_back(*iter);
+		}
+
+		//b == 1
+		for (iter = grid[i*n_x+1+r*n_x*n_y]->begin(); iter != grid[i*n_x+1+r*n_x*n_y]->end(); iter++){
+			halo.push_back(*iter);
+		}
+
+		//b == n_x-2
+		for (iter = grid[(i+1)*n_x-2+r*n_x*n_y]->begin(); iter != grid[(i+1)*n_x-2+r*n_x*n_y]->end(); iter++){
+			halo.push_back(*iter);
+		}
+
+		//b == n_x-1
+		for (iter = grid[(i+1)*n_x-1+r*n_x*n_y]->begin(); iter != grid[(i+1)*n_x-1+r*n_x*n_y]->end(); iter++){
+			halo.push_back(*iter);
+		}
+	}
+	}
+
+
+	return halo;
+}
+
+

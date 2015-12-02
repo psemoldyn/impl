@@ -7,6 +7,7 @@ src/outputWriter/XYZWriter.cpp\
 src/ParticleGenerator.cpp\
 src/ParticleGeneratorTest.cpp\
 src/ParticleContainerTest.cpp\
+src/ParticleContainerLCTest.cpp\
 src/FileReader.cpp\
 src/ParticleContainer.cpp\
 src/ParticleContainerLC.cpp\

@@ -18,7 +18,7 @@ class ParticleContainerLC: public ParticleContainer {
 private:
 	//array is good enough for the grid, as it doesn't change
 //	list<Particle>* grid[];
-	vector<list<Particle>*> grid;
+	vector<list<Particle*>*> grid;
 
 	//mesh size
 	double r_cut;
@@ -35,12 +35,14 @@ private:
 	int dims[];
 
 	//domain
-	vector<int> domainSize;
+	int domainSize[3];
 
 
 public:
 	ParticleContainerLC();
 	virtual ~ParticleContainerLC();
+
+	ParticleContainerLC(double r_cut, vector<int> domainSize);
 
 	/**
 	 * Creates a data structure for the Linked Cell algorithm
@@ -55,12 +57,12 @@ public:
 	/**
 	 * Returns a list of the cells neighboring the given
 	 */
-	list<list<Particle>*> findNeighbors(int cell);
+	list<list<Particle*>*> findNeighbors(int cell);
 
 	/**
 	 * Returns the grid of cells
 	 */
-	vector<list<Particle>*> getGrid();
+	vector<list<Particle*>*>* getGrid();
 
 	/**
 	 * Returns the dimension of the grid
@@ -72,6 +74,15 @@ public:
 	 */
 	void updateGrid();
 
+	/**
+	 * Returns a list of the boundary particles
+	 */
+	list<Particle*> getBoundaryParticles();
+
+	/**
+	 * Returns a list of the particles in the ghost layer
+	 */
+	list<Particle*> getHalo();
 };
 
 #endif /* SRC_PARTICLECONTAINERLC_H_ */
