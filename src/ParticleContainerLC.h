@@ -20,8 +20,16 @@ private:
 //	list<Particle>* grid[];
 	vector<list<Particle*>*> grid;
 
-	//mesh size
+	//domain
+	double domainSize[3];
+
+	//minimal cell size
 	double r_cut;
+
+	//actual cell sizes
+	double r_cut_x;
+	double r_cut_y;
+	double r_cut_z;
 
 	//dimension of the grid
 	int dim;
@@ -31,23 +39,25 @@ private:
 	int n_y;
 	int n_z;
 
-	//grid dimension
-	int dims[];
+	//removes a given particle from a cell
+	void delFromCell(Particle& p, int cell);
 
-	//domain
-	int domainSize[3];
+	//moves a particle from one cell to another
+	void moveParticle(Particle& p, int oldCell, int newCell);
+
+
 
 
 public:
 	ParticleContainerLC();
 	virtual ~ParticleContainerLC();
 
-	ParticleContainerLC(double r_cut, vector<int> domainSize);
+	ParticleContainerLC(double r_cut, vector<double> domainSize);
 
 	/**
 	 * Creates a data structure for the Linked Cell algorithm
 	 */
-	void init(double r_cut, vector<int> domainSize);
+	void init(double r_cut, vector<double> domainSize);
 
 	/**
 	 * Adds a particle to the Linked Cell grid
@@ -83,6 +93,16 @@ public:
 	 * Returns a list of the particles in the ghost layer
 	 */
 	list<Particle*> getHalo();
+
+	/**
+	 * Adds a particle to the ghost layer
+	 */
+	void addToHalo(Particle& p);
+
+	/**
+	 * Deletes a partcile from the halo
+	 */
+	void removeFromHalo(Particle& p);
 };
 
 #endif /* SRC_PARTICLECONTAINERLC_H_ */

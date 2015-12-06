@@ -20,7 +20,7 @@ ParticleContainerLC::~ParticleContainerLC() {
 	// TODO Auto-generated destructor stub
 }
 
-ParticleContainerLC::ParticleContainerLC(double r_cut, vector<int> domainSize){
+ParticleContainerLC::ParticleContainerLC(double r_cut, vector<double> domainSize){
 	particles = vector<Particle>();
 
 	this->r_cut = r_cut;
@@ -39,11 +39,16 @@ ParticleContainerLC::ParticleContainerLC(double r_cut, vector<int> domainSize){
 //		grid[n_x*n_y*n_z];
 	}
 
+	r_cut_x = domainSize[0]/float(n_x - 4);
+	r_cut_y = domainSize[0]/float(n_y - 4);
+	r_cut_z = domainSize[0]/float(n_z - 4);
+
+
 	grid= vector<list<Particle*>*>(n_x*n_y*n_z);
 
 }
 
-void ParticleContainerLC::init(double r_cut, vector<int> domainSize){
+void ParticleContainerLC::init(double r_cut, vector<double> domainSize){
 	this->r_cut = r_cut;
 
 
@@ -62,6 +67,10 @@ void ParticleContainerLC::init(double r_cut, vector<int> domainSize){
 //		grid[n_x*n_y*n_z];
 	}
 
+	r_cut_x = domainSize[0]/float(n_x - 4);
+	r_cut_y = domainSize[0]/float(n_y - 4);
+	r_cut_z = domainSize[0]/float(n_z - 4);
+
 	this->domainSize[0]=domainSize[0];
 	LOG4CXX_INFO(logger,this->domainSize[0]);
 
@@ -71,11 +80,7 @@ void ParticleContainerLC::init(double r_cut, vector<int> domainSize){
 	this->domainSize[2] = domainSize[2];
 	LOG4CXX_INFO(logger, this->domainSize[2]);
 
-
 //	this->domainSize = domainSize;
-
-
-
 
 	grid= vector<list<Particle*>*>(n_x*n_y*n_z);
 
@@ -83,12 +88,6 @@ void ParticleContainerLC::init(double r_cut, vector<int> domainSize){
 //	for (int i = 0; i < grid.size(); i++){
 //	}
 
-
-	LOG4CXX_INFO(logger, "Grid addr " << &grid << " " << &grid[0]);
-
-	dims[0] = n_x;
-	dims[1] = n_y;
-	dims[2] = n_z;
 
 	LOG4CXX_INFO(logger, "LCC created");
 
@@ -105,24 +104,15 @@ void ParticleContainerLC::init(double r_cut, vector<int> domainSize){
 
 void ParticleContainerLC::add(Particle& p){
 	utils::Vector<double, 3> position = p.getX();
-	LOG4CXX_INFO(logger, dim);
-	LOG4CXX_INFO(logger,this->r_cut);
-	LOG4CXX_INFO(logger,&(this->domainSize[0]));
-	LOG4CXX_INFO(logger, &n_x);
-	LOG4CXX_INFO(logger, this->domainSize[1]);
-	LOG4CXX_INFO(logger, this->domainSize[2]);
 	LOG4CXX_INFO(logger, "Adding " + p.toString());
 
 	if ((dim == 2 && position[0]<domainSize[0] && position[1]<domainSize[1]) ||
 		(dim == 3 && position[0]<domainSize[0] && position[1]<domainSize[1] && position[2]<domainSize[2])){
 	//each particle lands in cell position(coord)/factor_coord
-	LOG4CXX_INFO(logger, "Adding " + p.toString());
 
-	int cell_x = position[0]/r_cut;
-	int cell_y = position[1]/r_cut;
-	int cell_z = position[2]/r_cut;
+	int cell_x = position[0]/r_cut_x;	int cell_y = position[1]/r_cut_y;
+	int cell_z = position[2]/r_cut_z;
 	LOG4CXX_INFO(logger, "Adding at " << (n_x*n_y*cell_z + n_x*(cell_y+2) + cell_x + 2));
-	LOG4CXX_INFO(logger, "grid size " << grid.size());
 
 	if (!grid[n_x*n_y*cell_z + n_x*(cell_y+2) + cell_x+2]){
 		grid[n_x*n_y*cell_z + n_x*(cell_y+2) + cell_x+2] = new list<Particle*>();
@@ -292,7 +282,7 @@ vector<list<Particle*>*>* ParticleContainerLC::getGrid(){
 }
 
 int* ParticleContainerLC::getGridDim(){
-	return dims;
+	return &n_x;
 }
 
 void ParticleContainerLC::updateGrid(){
@@ -319,45 +309,110 @@ void ParticleContainerLC::updateGrid(){
 		oldPosition = p.getOldX();
 		newPosition = p.getX();
 
-		old_cell_x = oldPosition[0]/r_cut;
-		old_cell_y = oldPosition[1]/r_cut;
-		old_cell_z = oldPosition[2]/r_cut;
+		old_cell_x = oldPosition[0]/r_cut_x;
+		old_cell_y = oldPosition[1]/r_cut_y;
+		old_cell_z = oldPosition[2]/r_cut_z;
 
 		oldCell = n_x*n_y*old_cell_z + n_x*(old_cell_y+2) + old_cell_x + 2;
 
-		new_cell_x = newPosition[0]/r_cut;
-		new_cell_y = newPosition[1]/r_cut;
-		new_cell_z = newPosition[2]/r_cut;
 
-		newCell = n_x*n_y*new_cell_z + n_x*(new_cell_y+2) + new_cell_x + 2;
+		if (!p.getHalo() &&
+			((newPosition[0] >= 0 && newPosition[0] < domainSize[0]) || newPosition[0] == 0) &&
+			((newPosition[1] >= 0 && newPosition[1] < domainSize[1]) || newPosition[1] == 0) &&
+			((newPosition[2] >= 0 && newPosition[2] < domainSize[2]) || newPosition[2] == 0)){
 
-		if(oldCell != newCell){
-			list<Particle*>::iterator i;
-			for(i = grid[oldCell]->begin(); i != grid[oldCell]->end(); i++){
-				Particle& p2 = **i;
+			new_cell_x = newPosition[0]/r_cut_x;
+			new_cell_y = newPosition[1]/r_cut_y;
+			new_cell_z = newPosition[2]/r_cut_z;
 
-				LOG4CXX_INFO(logger, &p2);
-				LOG4CXX_INFO(logger, &p);
+			newCell = n_x*n_y*new_cell_z + n_x*(new_cell_y+2) + new_cell_x + 2;
 
-				if (p == p2){
-					grid[oldCell]->erase(i);
-				}
-
+			if(oldCell != newCell){
+				moveParticle(p, oldCell, newCell);
 			}
 
-		if ( newPosition[0] < domainSize[0] && newPosition[1] < domainSize[1] && (dim == 2 || newPosition[2] < domainSize[2])){
+		}
 
+		else {
+			delFromCell(p, oldCell);
+			p.getSkip() = true;
+		}
+/*		LOG4CXX_INFO(logger, newCell);
+		LOG4CXX_INFO(logger, p.getHalo());
+		if(oldCell != newCell && !p.getHalo()){
+			list<Particle*>::iterator i;
+			i = grid[oldCell]->begin();
+			bool found = false;
+			while(!found && grid[oldCell] && i != grid[oldCell]->end()){
+		//		if (grid[oldCell]->size() > 0){
+					Particle& p2 = **i;
+					LOG4CXX_INFO(logger, "size " << grid[oldCell]->size() << " cell " << oldCell);
+
+					LOG4CXX_INFO(logger, &p2);
+					LOG4CXX_INFO(logger, &p);
+
+					if (p == p2){
+						LOG4CXX_INFO(logger, grid[oldCell]->size());
+						grid[oldCell]->erase(i);
+						LOG4CXX_INFO(logger, grid[oldCell]->size());
+						found = true;
+
+					}
+			//	}
+				i++;
+			}
+
+
+			LOG4CXX_INFO(logger, newPosition[0] << " " << domainSize[0]);
+			LOG4CXX_INFO(logger, newPosition[1]);
+			LOG4CXX_INFO(logger, newPosition[2]);
+
+			LOG4CXX_INFO(logger, newCell);
+
+		if (((newPosition[0] < domainSize[0] &&  newPosition[0] > 0) || newPosition[0] == 0) && ((newPosition[1] < domainSize[1] &&  newPosition[0] > 0) || newPosition[1] == 0)&& (newPosition[2] == 0 || (newPosition[2] < domainSize[2] &&  newPosition[2] > 0))){
 			if (!grid[newCell]){
 				grid[newCell] = new list<Particle*>();
 			}
 
+			LOG4CXX_INFO(logger, &p);
 			grid[newCell]->push_back(&p);
 
 		}
-		}
+//		LOG4CXX_INFO(logger, grid[newCell]->size());
 
+		}
+*/
 	}
 }
+
+void ParticleContainerLC::delFromCell(Particle& p, int cell){
+	list<Particle*>::iterator i;
+	i = grid[cell]->begin();
+	bool found = false;
+	while(!found && grid[cell] && i != grid[cell]->end()){
+			Particle& p2 = **i;
+
+			if (p == p2){
+				grid[cell]->erase(i);
+				found = true;
+
+			}
+		i++;
+	}
+
+}
+
+
+void ParticleContainerLC::moveParticle(Particle& p, int oldCell, int newCell){
+	delFromCell(p, oldCell);
+
+	if (!grid[newCell]){
+		grid[newCell] = new list<Particle*>();
+	}
+
+	grid[newCell]->push_back(&p);
+}
+
 
 list<Particle*> ParticleContainerLC::getBoundaryParticles(){
 	list<Particle*> boundary = list<Particle*>();
@@ -503,4 +558,42 @@ list<Particle*> ParticleContainerLC::getHalo(){
 	return halo;
 }
 
+void ParticleContainerLC::addToHalo(Particle& p){
+	utils::Vector<double, 3> position = p.getX();
+
+	int cell_x = position[0]/r_cut_x;
+	int cell_y = position[1]/r_cut_y;
+	int cell_z = position[2]/r_cut_z;
+
+	if (cell_x <= 1 && cell_y <= 1){
+		LOG4CXX_INFO(logger, "Adding at " << (n_x*n_y*cell_z + n_x*cell_y + cell_x));
+
+		if (!grid[n_x*n_y*cell_z + n_x*cell_y + cell_x]){
+			grid[n_x*n_y*cell_z + n_x*cell_y + cell_x] = new list<Particle*>();
+		}
+
+		p.getHalo() = true;
+		grid[n_x*n_y*cell_z + n_x*cell_y + cell_x]->push_back(&p);
+		particles.push_back(p);
+	}
+
+	else{
+		LOG4CXX_INFO(logger, "Particle out of bounds");
+	}
+
+}
+
+
+void ParticleContainerLC::removeFromHalo(Particle& p){
+	utils::Vector<double, 3> position = p.getX();
+
+	int cell_x = position[0]/r_cut_z;
+	int cell_y = position[1]/r_cut_z;
+	int cell_z = position[2]/r_cut_z;
+
+	int cell = n_x*n_y*cell_z + n_x*cell_y + cell_x;
+
+	delFromCell(p, cell);
+
+}
 

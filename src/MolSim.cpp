@@ -72,7 +72,7 @@ double start_time = 0;
 double end_time = 1000;
 double delta_t = 0.014;
 double r_cut;
-vector<int> domainSize = vector<int>(3);
+vector<double> domainSize = vector<double>(3);
 
 ParticleContainerLC particles;
 //ParticleContainer particlesLC;
@@ -96,7 +96,7 @@ int main(int argc, char* argsv[]) {
 			CppUnit::TestRunner runner;
 			TestResult result;
 			runner.addTest(ParticleContainerTest::suite());
-//			runner.addTest(ParticleGeneratorTest::suite());
+			runner.addTest(ParticleGeneratorTest::suite());
 			runner.addTest(ParticleContainerLCTest::suite());
 			runner.run(result);
 		}
@@ -152,6 +152,10 @@ int main(int argc, char* argsv[]) {
 		if (*argsv[3] == 'l'){
 			FileReader fileReader;
 			fileReader.readFile(particles, argsv[4]);
+			dims = vector< vector<int> >(1);
+			dims[0] = vector<int>(2);
+			dims[0][0] = particles.size();
+			dims[0][1] = 3;
 		}
 		else if (*argsv[3]=='c'){
 
@@ -183,8 +187,6 @@ int main(int argc, char* argsv[]) {
 
 	grid = particles.getGrid();
 
-
-	LOG4CXX_INFO(logger, "Particles " << particles.size());
 
 
 	// the forces are needed to calculate x, but are not given in the input file.
@@ -231,13 +233,9 @@ void calculateF() {
 	float epsilon = 5.0;
 	float sigma = 1.0;
 
-
-	LOG4CXX_INFO(logger, "Particles " << particles.size());
-
 	int length = particles.getGridDim()[0]*
 			particles.getGridDim()[1]*
 			particles.getGridDim()[2];
-	LOG4CXX_INFO(logger, "got length");
 
 	for (int i = 0; i < length; i++){
 		if ((*grid)[i]){
@@ -321,9 +319,12 @@ void calculateF() {
 			}
 			}
 
+//			LOG4CXX_INFO(logger, "passed boundary conditions");
+
 			list<list<Particle*>*> neighbors = particles.findNeighbors(i);
 //			LOG4CXX_INFO(logger, "neighbors " << neighbors.size());
 			for (neighborsIter = neighbors.begin(); neighborsIter != neighbors.end(); neighborsIter++){
+				if (*neighborsIter){
 				list<Particle*>& neighbor = **neighborsIter;
 //				LOG4CXX_INFO(logger, "neighbor " << neighbor.size());
 				for (innerIter = neighbor.begin(); innerIter != neighbor.end(); innerIter++){
@@ -341,11 +342,11 @@ void calculateF() {
 							p1.getF() = p1.getF() + 24.0*epsilon/(pow(distance,2))*(pow(sigma/distance,6)-2*pow(sigma/distance,12))*(p2.getX()-p1.getX());
 						}
 					}
-
+				}
 				}
 			}
 
-			LOG4CXX_INFO(logger, "calculated force" << p1.toString());
+			LOG4CXX_INFO(logger, "Calculated force of " << p1.toString());
 
 		}
 		}
@@ -380,14 +381,14 @@ void calcF(){
 */
 
 void calculateX() {
-	LOG4CXX_INFO(logger, "calculated force");
-
 	for (size_t i = 0; i < particles.size(); i++){
 		Particle& p = particles[i];
+		if (!p.getSkip()){
 		p.getOldX() = p.getX();
 		// calculate X
 		// this function is called before calculateF() (except for initial forces), so it uses f and not old_f (since f hasn"t been updated yet)
 		p.getX() = p.getX()+delta_t*p.getV()+pow(delta_t,2)/(2*p.getM())*p.getF();
+	}
 	}
 }
 
@@ -395,7 +396,7 @@ void calculateV() {
 	int cuboid=0;
 	for (size_t i = 0; i < particles.size(); i++){
 		Particle& p = particles[i];
-
+		if (!p.getSkip()){
 		// calculate velocity
 		p.getV() = p.getV()+delta_t/(2*p.getM())*(p.getOldF()+p.getF());
 		//save dimension of each cuboid somewhere
@@ -410,6 +411,7 @@ void calculateV() {
 			dim = dims[cuboid][1];
 		}
 		MaxwellBoltzmannDistribution(p,0.1,dim);
+	}
 	}
 }
 

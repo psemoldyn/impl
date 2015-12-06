@@ -26,8 +26,8 @@ ParticleContainerLCTest::~ParticleContainerLCTest() {
 }
 
 void ParticleContainerLCTest::setUp(){
-	vector<int> domain2 = vector<int> (3);
-	vector<int> domain3 = vector<int> (3);
+	vector<double> domain2 = vector<double> (3);
+	vector<double> domain3 = vector<double> (3);
 	domain2[0] = 10;
 	domain2[1] = 10;
 	domain2[2] = 0;
@@ -122,15 +122,21 @@ void ParticleContainerLCTest::testNeighbors(){
 
 void ParticleContainerLCTest::testUpdateGrid(){
 	//move one particle and see if ok
-	((ParticleContainer) ParticleContainer2x2).add(p1);
+//	((ParticleContainer) ParticleContainer2x2).add(p1);
 	double fp[3];
 	fp[0] = 0;
 	fp[1] = 0;
 	fp[2] = 0;
 	utils::Vector<double, 3> fp1(fp);
+	LOG4CXX_INFO(logger, "before pg");
 	ParticleGenerator pg(ParticleContainer2x2, fp1, 1, 1, 1, 0, 1, fp1 ,0.1,0);
+	LOG4CXX_INFO(logger, "after pg");
 
-	vector<int> domain2 = vector<int> (3);
+
+	p1.getOldX() = p1.getX();
+	p1.getX()[0] = 7;
+
+	vector<double> domain2 = vector<double> (3);
 	domain2[0] = 10;
 	domain2[1] = 10;
 	domain2[2] = 0;
@@ -145,7 +151,6 @@ void ParticleContainerLCTest::testUpdateGrid(){
 	bool particleInCell = false;
 	list<Particle*>::iterator i;
 	for (i = (*grid)[15]->begin(); i != (*grid)[15]->end(); i++){
-		LOG4CXX_INFO(logger, "there?");
 		if (**i == p1){
 			particleInCell = true;
 		}
@@ -154,7 +159,7 @@ void ParticleContainerLCTest::testUpdateGrid(){
 
 	CPPUNIT_ASSERT(particleInCell == true);
 
-	LOG4CXX_INFO(logger, "Passed testUpdateGrid");
+	LOG4CXX_INFO(logger, "Passed testUpdateGrid!");
 
 }
 

@@ -41,6 +41,17 @@ private:
 	 */
 	int type;
 
+	/**
+	 * shows whether the particle is a halo particle
+	 */
+	bool halo;
+
+	/**
+	 * whether to skip the particle in calculations
+	 */
+	//only temporary, think of a better way to remove particles that go oob
+	bool skip;
+
 public:
 
 	Particle(int type = 0);
@@ -67,6 +78,10 @@ public:
 	utils::Vector<double, 3>& getOldF();
 
 	utils::Vector<double, 3>& getV();
+
+	bool& getHalo();
+
+	bool& getSkip();
 
 	double getM();
 

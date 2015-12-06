@@ -21,7 +21,7 @@ ParticleGeneratorTest::~ParticleGeneratorTest(){
 }
 
 void ParticleGeneratorTest::setUp(){
-//	pc=new ParticleContainer();
+	pc = ParticleContainer();
 	double fp[3];
 	fp[0] = 0;
 	fp[1] = 1;
@@ -32,5 +32,4 @@ void ParticleGeneratorTest::setUp(){
 
 void ParticleGeneratorTest::testNumParticles(){
 	CPPUNIT_ASSERT(pc.size()==(size_t)12*8*5);
-
 }

@@ -115,7 +115,7 @@ ParticleGenerator::ParticleGenerator(ParticleContainer& particles, utils::Vector
 		d=3;
 	}
 
-	dims = vector< vector<int> >();
+/*	dims = vector< vector<int> >();
 //	dims[cuboid][0]=x*y*z;
 //	dims[cuboid++][1] = d;
 //	int toadd[]={x*y*z,d};
@@ -123,6 +123,7 @@ ParticleGenerator::ParticleGenerator(ParticleContainer& particles, utils::Vector
 	toadd[0]=x*y*z;
 	toadd[1]=d;
 	dims.push_back(toadd);
+	*/
 	generateParticles(particles, type);
 								}
 
@@ -134,6 +135,8 @@ void ParticleGenerator::generateParticlesX(ParticleContainer& particles, int n, 
 		Particle p(cP,v,mass,type);
 		LOG4CXX_INFO(logger, "Generated particle: " + p.toString());
 		particles.add(p);
+		LOG4CXX_INFO(logger, "Added particle: " + p.toString());
+
 		}
 }
 
