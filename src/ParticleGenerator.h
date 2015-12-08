@@ -20,11 +20,13 @@
 using namespace std;
 
 class ParticleGenerator{
-private:
+protected:
 	/**
 	 * Position of particle in lower left corner
 	 */
 	utils::Vector<double, 3> firstParticle;
+
+	utils::Vector<double, 3> currentParticle;
 
 	/**
 	 * Number of particles on the x-axis
@@ -56,32 +58,15 @@ private:
 	 */
 	utils::Vector<double, 3> v;
 
-	/**
-	 * Mean of velocity of Brownian Motion
-	 */
-	double bm;
 
-	/**
-	 * Position of the first particle in a given row
-	 */
-	utils::Vector<double, 3> currentParticle;
-
-
-	/**
-	 * Generates particles on the x-axis
-	 */
-	void generateParticlesX(ParticleContainer& particles, int n, int type);
-
-	/**
-	 * Generates the particles
-	 */
-	void generateParticles(ParticleContainer& particles, int type);
 
 public:
 	/**
 	 * Dimensions of the cuboids
 	 */
 	vector< vector<int> > dims;
+
+	ParticleGenerator();
 
 	/**
 	 * Reads the input parameters from a file

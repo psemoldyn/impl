@@ -39,8 +39,6 @@ private:
 	int n_y;
 	int n_z;
 
-	//removes a given particle from a cell
-	void delFromCell(Particle& p, int cell);
 
 	//moves a particle from one cell to another
 	void moveParticle(Particle& p, int oldCell, int newCell);
@@ -79,6 +77,10 @@ public:
 	 */
 	int* getGridDim();
 
+
+	//removes a given particle from a cell
+	void delFromCell(Particle& p, int cell);
+
 	/**
 	 * Updates the positions of the particles in the grid
 	 */
@@ -103,6 +105,17 @@ public:
 	 * Deletes a partcile from the halo
 	 */
 	void removeFromHalo(Particle& p);
+
+	vector<double> getDomain();
+
+	double getCutoff();
+
+	double getCutX();
+
+	double getCutY();
+
+	double getCutZ();
+
 };
 
 #endif /* SRC_PARTICLECONTAINERLC_H_ */

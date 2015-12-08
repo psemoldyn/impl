@@ -11,6 +11,7 @@
 #include "ParticleContainer.h"
 #include "ParticleContainerLC.h"
 #include "ParticleGenerator.h"
+#include "ParticleGeneratorCuboid.h"
 #include "utils/Vector.h"
 
 #include <cppunit/extensions/HelperMacros.h>

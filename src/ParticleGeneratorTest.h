@@ -21,6 +21,7 @@
 #include <cppunit/CompilerOutputter.h>
 
 #include "ParticleGenerator.h"
+#include "ParticleGeneratorCuboid.h"
 #include "utils/Vector.h"
 
 using namespace CppUnit;

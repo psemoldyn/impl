@@ -5,10 +5,13 @@
 #include "ParticleContainer.h"
 #include "ParticleContainerLC.h"
 #include "ParticleGenerator.h"
+#include "ParticleGeneratorCuboid.h"
+#include "ParticleGeneratorSphere.h"
 #include "ParticleContainerTest.h"
 #include "ParticleGeneratorTest.h"
 #include "ParticleContainerLCTest.h"
 #include "MaxwellBoltzmannDistribution.h"
+#include "BoundaryConditions.h"
 
 #include <list>
 #include <sstream>
@@ -73,6 +76,9 @@ double end_time = 1000;
 double delta_t = 0.014;
 double r_cut;
 vector<double> domainSize = vector<double>(3);
+//type of boundary, 0 for outflow, 1 for reflecting
+int boundaryType;
+BoundaryConditions bc = BoundaryConditions();
 
 ParticleContainerLC particles;
 //ParticleContainer particlesLC;
@@ -115,7 +121,7 @@ int main(int argc, char* argsv[]) {
 	}
 
 
-	else if (argc < 8) {
+	else if (argc < 9) {
 		LOG4CXX_FATAL(logger,"Erroneous program call! Please type the end time and time step, then c for a file "
 				"containing cuboids or l for a file containing a list of particles, followed by the filename. ALternatively, "
 				"type the parameters of the cuboids you want to create. ");
@@ -123,7 +129,7 @@ int main(int argc, char* argsv[]) {
 	}
 
 	//pass "l" for a list of particles, "c" for a cuboid as the second argument
-	else if (argc == 8 || argc == 9){
+	else if (argc == 9 || argc == 10){
 
 		LOG4CXX_INFO(logger, "Start reading args");
 
@@ -136,15 +142,17 @@ int main(int argc, char* argsv[]) {
 
 		r_cut = atof(argsv[5]);
 
-		domainSize[0]=atoi(argsv[6]);
+		boundaryType = atoi(argsv[6]);
 
-		domainSize[1]=atoi(argsv[7]);
+		domainSize[0]=atoi(argsv[7]);
+
+		domainSize[1]=atoi(argsv[8]);
 
 		domainSize[2] = 0;
 
 
-		if (argc == 9){
-			domainSize[2]=atoi(argsv[8]);
+		if (argc == 10){
+			domainSize[2]=atoi(argsv[9]);
 		}
 
 	//	particles = ParticleContainerLC(r_cut, domainSize);
@@ -159,7 +167,7 @@ int main(int argc, char* argsv[]) {
 		}
 		else if (*argsv[3]=='c'){
 
-			ParticleGenerator pg(particles, argsv[4]);
+			ParticleGeneratorCuboid pg(particles, argsv[4]);
 
 			//HORRIBLE! use a pointer to pg.dims, this is way too inefficient. i couldn't figure it out.
 			dims = vector< vector<int> >(pg.dims.size());
@@ -171,6 +179,21 @@ int main(int argc, char* argsv[]) {
 			}
 
 		}
+
+		else if (*argsv[3]=='s'){
+
+			ParticleGeneratorSphere pg(particles, argsv[4]);
+
+			//HORRIBLE! use a pointer to pg.dims, this is way too inefficient. i couldn't figure it out.
+			dims = vector< vector<int> >(pg.dims.size());
+			for (int c = 0; c<pg.dims.size();c++){
+				dims[c]=vector<int>(2);
+				dims[c][0]=pg.dims[c][0];
+				dims[c][1]=pg.dims[c][1];
+//				LOG4CXX_INFO(logger, pg.dims[c][1]);
+			}
+		}
+
 
 		else{
 			LOG4CXX_FATAL(logger, "Erroneous program call! Please type the end time and time step, then c for a file "
@@ -200,6 +223,14 @@ int main(int argc, char* argsv[]) {
 	while (current_time < end_time) {
 		// calculate new x
 		calculateX();
+
+		if (boundaryType == 0){
+			bc.applyOutflowBoundary(particles);
+		}
+		else if (boundaryType == 1){
+			bc.applyReflectingBoundary(particles, 5, 1);
+		}
+
 		particles.updateGrid();
 
 		// calculate new f
@@ -244,80 +275,6 @@ void calculateF() {
 			p1.getOldF() = p1.getF();
 			p1.getF() = 0;
 
-			//reflecting boundary conditions
-			//right boundary
-			if (abs(p1.getX()[0]-domainSize[0])< pow(2,1/6.0)*sigma && abs(p1.getX()[0]-domainSize[0]) !=0){
-				double x[3] = {domainSize[0], p1.getX()[1], p1.getX()[2]};
-				utils::Vector<double, 3> v = p1.getV();
-				Particle counterParticle(x,v,p1.getM());
-
-				double distance = (p1.getX()-counterParticle.getX()).L2Norm();
-
-				p1.getF() = p1.getF() + 24.0*epsilon/(pow(distance,2))*(pow(sigma/distance,6)-2*pow(sigma/distance,12))*(counterParticle.getX()-p1.getX());
-
-			}
-
-			//left boundary
-			if (abs(p1.getX()[0])< pow(2,1/6.0)*sigma && abs(p1.getX()[0]) !=0){
-				double x[3] = {0, p1.getX()[1], p1.getX()[2]};
-				utils::Vector<double, 3> v = p1.getV();
-				Particle counterParticle(x,v,p1.getM());
-
-				double distance = (p1.getX()-counterParticle.getX()).L2Norm();
-
-				p1.getF() = p1.getF() + 24.0*epsilon/(pow(distance,2))*(pow(sigma/distance,6)-2*pow(sigma/distance,12))*(counterParticle.getX()-p1.getX());
-
-			}
-
-			//upper boundary
-			if (abs(p1.getX()[1]-domainSize[1])< pow(2,1/6.0)*sigma && abs(p1.getX()[1] - domainSize[1]) !=0){
-				double x[3] = {p1.getX()[0], domainSize[1], p1.getX()[2]};
-				utils::Vector<double, 3> v = p1.getV();
-				Particle counterParticle(x,v,p1.getM());
-
-				double distance = (p1.getX()-counterParticle.getX()).L2Norm();
-
-				p1.getF() = p1.getF() + 24.0*epsilon/(pow(distance,2))*(pow(sigma/distance,6)-2*pow(sigma/distance,12))*(counterParticle.getX()-p1.getX());
-
-			}
-
-			//lower boundary
-			if (abs(p1.getX()[1])< pow(2,1/6.0)*sigma && abs(p1.getX()[1]) !=0){
-				double x[3] = {p1.getX()[0], 0, p1.getX()[2]};
-				utils::Vector<double, 3> v = p1.getV();
-				Particle counterParticle(x,v,p1.getM());
-
-				double distance = (p1.getX()-counterParticle.getX()).L2Norm();
-
-				p1.getF() = p1.getF() + 24.0*epsilon/(pow(distance,2))*(pow(sigma/distance,6)-2*pow(sigma/distance,12))*(counterParticle.getX()-p1.getX());
-
-			}
-			if (domainSize[2] != 0){
-
-			//back boundary
-			if (abs(p1.getX()[2]-domainSize[2])< pow(2,1/6.0)*sigma && abs(p1.getX()[2]-domainSize[2]) !=0){
-				double x[3] = {p1.getX()[0], p1.getX()[1], domainSize[2]};
-				utils::Vector<double, 3> v = p1.getV();
-				Particle counterParticle(x,v,p1.getM());
-
-				double distance = (p1.getX()-counterParticle.getX()).L2Norm();
-
-				p1.getF() = p1.getF() + 24.0*epsilon/(pow(distance,2))*(pow(sigma/distance,6)-2*pow(sigma/distance,12))*(counterParticle.getX()-p1.getX());
-
-			}
-
-			//front boundary
-			if (abs(p1.getX()[2])< pow(2,1/6.0)*sigma && abs(p1.getX()[2]) !=0){
-				double x[3] = {p1.getX()[0], p1.getX()[1], 0};
-				utils::Vector<double, 3> v = p1.getV();
-				Particle counterParticle(x,v,p1.getM());
-
-				double distance = (p1.getX()-counterParticle.getX()).L2Norm();
-
-				p1.getF() = p1.getF() + 24.0*epsilon/(pow(distance,2))*(pow(sigma/distance,6)-2*pow(sigma/distance,12))*(counterParticle.getX()-p1.getX());
-
-			}
-			}
 
 //			LOG4CXX_INFO(logger, "passed boundary conditions");
 
@@ -346,7 +303,7 @@ void calculateF() {
 				}
 			}
 
-			LOG4CXX_INFO(logger, "Calculated force of " << p1.toString());
+	//		LOG4CXX_INFO(logger, "Calculated force of " << p1.toString());
 
 		}
 		}

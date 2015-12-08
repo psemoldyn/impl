@@ -102,6 +102,15 @@ void ParticleContainerLC::init(double r_cut, vector<double> domainSize){
 
 }
 
+vector<double> ParticleContainerLC::getDomain(){
+	vector<double> domain = vector<double>(3);
+	domain[0] = domainSize[0];
+	domain[1] = domainSize[1];
+	domain[2] = domainSize[2];
+
+	return domain;
+}
+
 void ParticleContainerLC::add(Particle& p){
 	utils::Vector<double, 3> position = p.getX();
 	LOG4CXX_INFO(logger, "Adding " + p.toString());
@@ -285,6 +294,24 @@ int* ParticleContainerLC::getGridDim(){
 	return &n_x;
 }
 
+double ParticleContainerLC::getCutoff(){
+	return r_cut;
+}
+
+double ParticleContainerLC::getCutX(){
+	return r_cut_x;
+}
+
+double ParticleContainerLC::getCutY(){
+	return r_cut_y;
+}
+
+double ParticleContainerLC::getCutZ(){
+	return r_cut_z;
+}
+
+
+
 void ParticleContainerLC::updateGrid(){
 	vector<Particle>::iterator iter;
 
@@ -316,10 +343,11 @@ void ParticleContainerLC::updateGrid(){
 		oldCell = n_x*n_y*old_cell_z + n_x*(old_cell_y+2) + old_cell_x + 2;
 
 
-		if (!p.getHalo() &&
-			((newPosition[0] >= 0 && newPosition[0] < domainSize[0]) || newPosition[0] == 0) &&
-			((newPosition[1] >= 0 && newPosition[1] < domainSize[1]) || newPosition[1] == 0) &&
-			((newPosition[2] >= 0 && newPosition[2] < domainSize[2]) || newPosition[2] == 0)){
+		if (!p.getHalo() && !p.getSkip()
+	//     && ((newPosition[0] >= 0 && newPosition[0] < domainSize[0]) || newPosition[0] == 0) &&
+	//		((newPosition[1] >= 0 && newPosition[1] < domainSize[1]) || newPosition[1] == 0) &&
+	//		((newPosition[2] >= 0 && newPosition[2] < domainSize[2]) || newPosition[2] == 0))
+				){
 
 			new_cell_x = newPosition[0]/r_cut_x;
 			new_cell_y = newPosition[1]/r_cut_y;
@@ -333,11 +361,14 @@ void ParticleContainerLC::updateGrid(){
 
 		}
 
-		else {
-			delFromCell(p, oldCell);
-			p.getSkip() = true;
-		}
-/*		LOG4CXX_INFO(logger, newCell);
+//		else {
+//			delFromCell(p, oldCell);
+//			p.getSkip() = true;
+//		}
+
+
+
+		/*		LOG4CXX_INFO(logger, newCell);
 		LOG4CXX_INFO(logger, p.getHalo());
 		if(oldCell != newCell && !p.getHalo()){
 			list<Particle*>::iterator i;

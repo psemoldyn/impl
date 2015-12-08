@@ -129,7 +129,7 @@ void ParticleContainerLCTest::testUpdateGrid(){
 	fp[2] = 0;
 	utils::Vector<double, 3> fp1(fp);
 	LOG4CXX_INFO(logger, "before pg");
-	ParticleGenerator pg(ParticleContainer2x2, fp1, 1, 1, 1, 0, 1, fp1 ,0.1,0);
+	ParticleGeneratorCuboid pg(ParticleContainer2x2, fp1, 1, 1, 1, 0, 1, fp1 ,0.1,0);
 	LOG4CXX_INFO(logger, "after pg");
 
 

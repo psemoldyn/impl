@@ -44,6 +44,9 @@ public:
 	 */
 	ParticleContainer(const vector<Particle> pvector);
 
+
+	vector<Particle> getParticles();
+
 	/**
 	 * Adds an element to the container
 	 */

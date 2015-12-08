@@ -23,7 +23,9 @@ ParticleContainer::ParticleContainer(const vector<Particle> pvector){
 	particles = pvector;
 }
 
-
+vector<Particle> ParticleContainer::getParticles(){
+	return particles;
+}
 
 void ParticleContainer::add(const Particle& p){
 	particles.push_back(p);
