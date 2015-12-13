@@ -14,4 +14,5 @@ src/ParticleContainerLCTest.cpp\
 src/FileReader.cpp\
 src/ParticleContainer.cpp\
 src/ParticleContainerLC.cpp\
+src/Thermostat.cpp\
 src/MolSim.cpp\

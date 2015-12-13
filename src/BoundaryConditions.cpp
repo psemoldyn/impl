@@ -25,9 +25,9 @@ void BoundaryConditions::applyOutflowBoundary(ParticleContainerLC& pc){
 
 	int r_cut = pc.getCutoff();
 
-	int r_cut_x = pc.getCutX();
-	int r_cut_y = pc.getCutY();
-	int r_cut_z = pc.getCutZ();
+	double r_cut_x = pc.getCutX();
+	double r_cut_y = pc.getCutY();
+	double r_cut_z = pc.getCutZ();
 
 	vector<double> domainSize = vector<double>(3);
 	domainSize[0] = pc.getDomain()[0];

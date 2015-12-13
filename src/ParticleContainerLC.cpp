@@ -68,8 +68,13 @@ void ParticleContainerLC::init(double r_cut, vector<double> domainSize){
 	}
 
 	r_cut_x = domainSize[0]/float(n_x - 4);
-	r_cut_y = domainSize[0]/float(n_y - 4);
-	r_cut_z = domainSize[0]/float(n_z - 4);
+	r_cut_y = domainSize[1]/float(n_y - 4);
+	if (dim == 3){
+		r_cut_z = domainSize[2]/float(n_z - 4);
+	}
+	else{
+		r_cut_z = 1;
+	}
 
 	this->domainSize[0]=domainSize[0];
 	LOG4CXX_INFO(logger,this->domainSize[0]);

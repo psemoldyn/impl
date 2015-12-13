@@ -12,6 +12,7 @@
 #include "ParticleContainerLCTest.h"
 #include "MaxwellBoltzmannDistribution.h"
 #include "BoundaryConditions.h"
+#include "Thermostat.h"
 
 #include <list>
 #include <sstream>
@@ -79,10 +80,19 @@ vector<double> domainSize = vector<double>(3);
 //type of boundary, 0 for outflow, 1 for reflecting
 int boundaryType;
 BoundaryConditions bc = BoundaryConditions();
+double initTemp;
+double targetTemp;
+int timeSteps;
+int timeStepsChange;
+double tempDiff;
+bool brown;
+int numDim;
 
 ParticleContainerLC particles;
 //ParticleContainer particlesLC;
 vector< vector<int> > dims;
+//Thermostat thermostat(particles);
+Thermostat* thermostat = new Thermostat(particles);
 
 vector<list<Particle*>*>* grid;
 
@@ -129,7 +139,7 @@ int main(int argc, char* argsv[]) {
 	}
 
 	//pass "l" for a list of particles, "c" for a cuboid as the second argument
-	else if (argc == 9 || argc == 10){
+	else if (argc >= 12 && argc <= 16){
 
 		LOG4CXX_INFO(logger, "Start reading args");
 
@@ -148,11 +158,40 @@ int main(int argc, char* argsv[]) {
 
 		domainSize[1]=atoi(argsv[8]);
 
-		domainSize[2] = 0;
+		domainSize[2]=atoi(argsv[9]);
 
+		if (domainSize[2] == 0){
+			numDim = 2;
+		}
+		else{
+			numDim = 3;
+		}
 
-		if (argc == 10){
-			domainSize[2]=atoi(argsv[9]);
+		initTemp = atof(argsv[10]);
+
+		timeSteps = atof(argsv[11]);
+
+		if (argc == 13){
+			if (*argsv[12] == 't'){
+				brown = true;
+			}
+			else if (*argsv[12] == 'f'){
+				brown = false;
+			}
+		}
+
+		else if (argc == 15 || argc == 16){
+			targetTemp = atof(argsv[12]);
+			tempDiff = atof(argsv[13]);
+			timeStepsChange = atoi(argsv[14]);
+			if (argc == 16){
+				if (*argsv[15] == 't'){
+					brown = true;
+				}
+				else if (*argsv[15] == 'f'){
+					brown = false;
+				}
+			}
 		}
 
 	//	particles = ParticleContainerLC(r_cut, domainSize);
@@ -160,15 +199,15 @@ int main(int argc, char* argsv[]) {
 		if (*argsv[3] == 'l'){
 			FileReader fileReader;
 			fileReader.readFile(particles, argsv[4]);
-			dims = vector< vector<int> >(1);
+	/*		dims = vector< vector<int> >(1);
 			dims[0] = vector<int>(2);
 			dims[0][0] = particles.size();
-			dims[0][1] = 3;
+			dims[0][1] = 3; */
 		}
 		else if (*argsv[3]=='c'){
 
 			ParticleGeneratorCuboid pg(particles, argsv[4]);
-
+/*
 			//HORRIBLE! use a pointer to pg.dims, this is way too inefficient. i couldn't figure it out.
 			dims = vector< vector<int> >(pg.dims.size());
 			for (int c = 0; c<pg.dims.size();c++){
@@ -177,13 +216,13 @@ int main(int argc, char* argsv[]) {
 				dims[c][1]=pg.dims[c][1];
 //				LOG4CXX_INFO(logger, pg.dims[c][1]);
 			}
-
+*/
 		}
 
 		else if (*argsv[3]=='s'){
 
 			ParticleGeneratorSphere pg(particles, argsv[4]);
-
+/*
 			//HORRIBLE! use a pointer to pg.dims, this is way too inefficient. i couldn't figure it out.
 			dims = vector< vector<int> >(pg.dims.size());
 			for (int c = 0; c<pg.dims.size();c++){
@@ -191,9 +230,20 @@ int main(int argc, char* argsv[]) {
 				dims[c][0]=pg.dims[c][0];
 				dims[c][1]=pg.dims[c][1];
 //				LOG4CXX_INFO(logger, pg.dims[c][1]);
-			}
+
+			}*/
 		}
 
+		LOG4CXX_INFO(logger, "before thermo");
+		if (argc == 12 || argc == 13){
+			*thermostat = Thermostat(particles, initTemp, timeSteps, brown, numDim);
+			LOG4CXX_INFO(logger, "after thermo");
+
+		}
+		else if (argc == 15 || argc == 16){
+			*thermostat = Thermostat(particles, initTemp, timeSteps, targetTemp,
+					tempDiff,timeStepsChange, brown, numDim);
+		}
 
 		else{
 			LOG4CXX_FATAL(logger, "Erroneous program call! Please type the end time and time step, then c for a file "
@@ -203,6 +253,7 @@ int main(int argc, char* argsv[]) {
 		}
 
 	}
+
 
 	//set up for use of Linked Cell Method
 	particles.init(r_cut, domainSize);
@@ -237,6 +288,9 @@ int main(int argc, char* argsv[]) {
 		calculateF();
 		// calculate new v
 		calculateV();
+		if (thermostat != NULL && iteration != 0){
+			thermostat->applyThermostat(iteration);
+		}
 
 		iteration++;
 		if (iteration % 10 == 0) {
@@ -303,7 +357,7 @@ void calculateF() {
 				}
 			}
 
-	//		LOG4CXX_INFO(logger, "Calculated force of " << p1.toString());
+			LOG4CXX_INFO(logger, "Calculated force of " << p1.toString());
 
 		}
 		}
@@ -359,15 +413,16 @@ void calculateV() {
 		//save dimension of each cuboid somewhere
 		// i mod number particles in first cuboid = 0 => first cuboid, read dim
 		// i mod -||- = 1 => second cuboid. remove frist for simpler comparison
-		int dim;
+/*		int dim;
 		if (i % dims[cuboid][0] < dims[cuboid][0]){
 			dim = dims[cuboid][1];
 		}
 		else{
 			cuboid++;
 			dim = dims[cuboid][1];
-		}
-		MaxwellBoltzmannDistribution(p,0.1,dim);
+		}*/
+		//should this be here??
+		MaxwellBoltzmannDistribution(p,0.1,numDim);
 	}
 	}
 }
