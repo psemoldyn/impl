@@ -347,13 +347,13 @@ void ParticleContainerLC::updateGrid(){
 
 		oldCell = n_x*n_y*old_cell_z + n_x*(old_cell_y+2) + old_cell_x + 2;
 
-
+		cout << oldCell << endl;
 		if (!p.getHalo() && !p.getSkip()
 	//     && ((newPosition[0] >= 0 && newPosition[0] < domainSize[0]) || newPosition[0] == 0) &&
 	//		((newPosition[1] >= 0 && newPosition[1] < domainSize[1]) || newPosition[1] == 0) &&
 	//		((newPosition[2] >= 0 && newPosition[2] < domainSize[2]) || newPosition[2] == 0))
 				){
-
+			cout << p << endl;
 			new_cell_x = newPosition[0]/r_cut_x;
 			new_cell_y = newPosition[1]/r_cut_y;
 			new_cell_z = newPosition[2]/r_cut_z;

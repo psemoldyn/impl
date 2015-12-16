@@ -297,12 +297,12 @@ int main(int argc, char* argsv[]) {
 		else if (boundaryType == 2){
 			bc.applyPeriodicBoundary(particles);
 		}
-	//	LOG4CXX_INFO(logger, "boundaries");
+		LOG4CXX_INFO(logger, "boundaries");
 		particles.updateGrid();
-	//	LOG4CXX_INFO(logger, "updated grid");
+		LOG4CXX_INFO(logger, "updated grid");
 		// calculate new f
 		calculateF();
-//		LOG4CXX_INFO(logger, "force");
+		LOG4CXX_INFO(logger, "force");
 		// calculate new v
 		calculateV();
 		LOG4CXX_INFO(logger, "vel");
@@ -346,7 +346,7 @@ void calculateF() {
 			particles.getGridDim()[2];
 
 	for (int i = 0; i < length; i++){
-	//	LOG4CXX_INFO(logger, i);
+//		LOG4CXX_INFO(logger, i);
 		if ((*grid)[i] && (*grid)[i]->size() > 0){
 		for (iter = (*grid)[i]->begin(); iter != (*grid)[i]->end(); iter++){
 			Particle& p1 = **iter;

@@ -19,6 +19,7 @@ public:
 
 	void applyOutflowBoundary(ParticleContainerLC& pc);
 	void applyReflectingBoundary(ParticleContainerLC& pc, double epsilon, double sigma);
+	void applyPeriodicBoundary(ParticleContainerLC& pc);
 };
 
 #endif /* SRC_BOUNDARYCONDITIONS_H_ */

@@ -110,8 +110,8 @@ void ParticleContainerLCTest::testHalo(){
 
 void ParticleContainerLCTest::testNeighbors(){
 	//check if number of neighbors correct
-	list<list<Particle*>*> neighbors = ParticleContainer2x2.findNeighbors(0);
-	list<list<Particle*>*> neighbors2 = ParticleContainer3x3x3.findNeighbors(64);
+	list<int> neighbors = ParticleContainer2x2.findNeighbors(0);
+	list<int> neighbors2 = ParticleContainer3x3x3.findNeighbors(64);
 
 	CPPUNIT_ASSERT(neighbors.size() == 4);
 	CPPUNIT_ASSERT(neighbors2.size() == 27);
