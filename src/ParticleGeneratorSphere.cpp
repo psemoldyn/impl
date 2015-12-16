@@ -36,12 +36,12 @@ ParticleGeneratorSphere::ParticleGeneratorSphere(ParticleContainer& particles, c
 
        	istringstream numstream(input);
         numstream >> numSpheres;
-
+/*
    	 	dims = vector< vector<int> >(numSpheres);
    	    	for (int c = 0; c<numSpheres; c++){
    	    		dims[c] = vector<int>(2);
    	    	}
-
+*/
 
         //dims[numCuboids];
         for (int i = 0; i < numSpheres; i++) {
@@ -72,11 +72,15 @@ ParticleGeneratorSphere::ParticleGeneratorSphere(ParticleContainer& particles, c
           	//read mass
           	datastream >> mass;
 
+          	datastream >> sigma;
+
+          	datastream >> epsilon;
+
           	//maybe use arrays for the class attributes so all cuboids can be saved?
           	generateParticles(particles, i);
 
           	//save dimension of each cuboid
-          	dims[i][0]=x*y*z;
+/*          	dims[i][0]=x*y*z;
 
           	if (z==1){
           		dims[i][1] = 2;
@@ -85,6 +89,7 @@ ParticleGeneratorSphere::ParticleGeneratorSphere(ParticleContainer& particles, c
           	else{
           		dims[i][1] = 3;
           	}
+          	*/
         }
     }
 }
@@ -130,8 +135,8 @@ void ParticleGeneratorSphere::generateCircle(ParticleContainer& particles, int r
 		currentRowUp[1] += h;
 		currentRowDown[1] -= h;
 
-		Particle p1(currentRowUp, v, mass);
-		Particle p2(currentRowDown, v, mass);
+		Particle p1(currentRowUp, v, mass, type, false, false, sigma, epsilon);
+		Particle p2(currentRowDown, v, mass, type, false, false, sigma, epsilon);
 
 		particles.add(p1);
 		particles.add(p2);
@@ -148,30 +153,33 @@ void ParticleGeneratorSphere::generateCircle(ParticleContainer& particles, int r
 	currentRowUp[1] += h;
 	currentRowDown[1] -= h;
 
-	Particle p1(currentRowUp, v, mass);
-	Particle p2(currentRowDown, v, mass);
+	Particle p1(currentRowUp, v, mass, type, false, false, sigma, epsilon);
+	Particle p2(currentRowDown, v, mass, type, false, false, sigma, epsilon);
+
+	particles.add(p1);
+	particles.add(p2);
 }
 
 void ParticleGeneratorSphere::generateParticlesX(ParticleContainer& particles, int n, utils::Vector<double, 3> currentRow, int type){
 	utils::Vector<double, 3> firstPosRight = currentRow;
 	firstPosRight[0] = firstParticle[0] + h/2;
-	Particle p1(firstPosRight, v, mass);
+	Particle p1(firstPosRight, v, mass, type, false, false, sigma, epsilon);
 	particles.add(p1);
 
 	utils::Vector<double, 3> firstPosLeft = currentRow;
 	firstPosLeft[0] = firstParticle[0] - h/2;
-	Particle p2(firstPosLeft, v, mass);
+	Particle p2(firstPosLeft, v, mass, type, false, false, sigma, epsilon);
 
 	utils::Vector<double, 3> cP1 = firstPosRight;
 	utils::Vector<double, 3> cP2 = firstPosLeft;
 
-	for (int i = 0; i < x-(n+1); i++){
+	for (int i = 1; i < x-(n+1); i++){
 		firstPosRight[0] += h*i;
-		Particle p1(cP1, v, mass);
+		Particle p1(cP1, v, mass, type, false, false, sigma, epsilon);
 		particles.add(p1);
 
 		firstPosLeft[0] -= h*i;
-		Particle p2(cP2, v, mass);
+		Particle p2(cP2, v, mass, type, false, false, sigma, epsilon);
 		particles.add(p2);
 
 	}

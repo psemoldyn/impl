@@ -27,8 +27,16 @@ FileReader::~FileReader() {
 
 void FileReader::readFile(ParticleContainer& particles, char* filename) {
 	double x[] = {0,0,0};
+	double old_x[] = {0,0,0};
 	double v[] = {1,1,1};
+	double f[] = {0,0,0};
+	double old_f[] = {0,0,0};
 	double m = 1;
+	int type;
+	bool halo;
+	bool skip;
+	double sigma;
+	double epsilon;
     int num_particles = 0;
 
     std::ifstream input_file(filename);
@@ -58,15 +66,30 @@ void FileReader::readFile(ParticleContainer& particles, char* filename) {
     			datastream >> x[j];
 
     		}
+
+    		for (int j = 0; j < 3; j++){
+    			datastream >> old_x[j];
+    		}
     		for (int j = 0; j < 3; j++) {
     			datastream >> v[j];
+    		}
+    		for (int j = 0; j < 3; j++){
+    			datastream >> f[j];
+    		}
+    		for (int j = 0; j < 3; j++){
+    			datastream >> old_f[j];
     		}
     		if (datastream.eof()) {
     			LOG4CXX_FATAL(logger,"Error reading file: eof reached unexpectedly reading from line " + i)
     			exit(-1);
     		}
     		datastream >> m;
-    		Particle p(x, v, m);
+    		datastream >> type;
+    		datastream >> halo;
+    		datastream >> skip;
+    		datastream >> sigma;
+    		datastream >> epsilon;
+    		Particle p(x, v, m, type, halo, skip, sigma, epsilon);
     		particles.add(p);
 
     		getline(input_file, tmp_string);

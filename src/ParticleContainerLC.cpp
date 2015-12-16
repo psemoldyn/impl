@@ -143,8 +143,8 @@ void ParticleContainerLC::add(Particle& p){
 
 }
 
-list<list<Particle*>*> ParticleContainerLC::findNeighbors(int cell){
-	list<list<Particle*>*> neighbors;
+list<int> ParticleContainerLC::findNeighbors(int cell){
+	list<int> neighbors;
 
 	//position in grid (a,b,c) or (a,b)
 	int a_pos;
@@ -194,12 +194,12 @@ list<list<Particle*>*> ParticleContainerLC::findNeighbors(int cell){
 			}
 
 
-				//convert to linearized index
-				ig = n_x*(a+2)+b+2;
+				//convert to linear index
+				ig = n_x*a+b;
 
 
 				if (a >= 0 && a < n_y && b >= 0 && b < n_x){
-					neighbors.push_back(grid[ig]);
+					neighbors.push_back(ig);
 				}
 /*				if (i < 4){
 					neighbors[i]=&grid[ig];
@@ -268,10 +268,10 @@ list<list<Particle*>*> ParticleContainerLC::findNeighbors(int cell){
 				c=c+1;
 			}
 
-			ig = a*n_y*n_x + (b+2)*n_x + c + 2;
+			ig = a*n_y*n_x + b*n_x + c;
 
 			if (a >= 0 && a < n_z && b >= 0 && b < n_y && c >= 0 && c < n_x){
-				neighbors.push_back(grid[ig]);
+				neighbors.push_back(ig);
 
 			}
 			i++;
@@ -449,6 +449,69 @@ void ParticleContainerLC::moveParticle(Particle& p, int oldCell, int newCell){
 	grid[newCell]->push_back(&p);
 }
 
+list<int> ParticleContainerLC::getBoundaryCells(){
+	list<int> boundary = list<int>();
+
+	list<Particle*>::iterator iter;
+
+	//if there are 3 dimensions add the boundary for each rectangle in the z-direction
+	for (int r = 0; r < n_z; r++){
+
+	for (int i = 2; i < n_x-2; i++){
+		//a == 0
+		if (grid[i+2*n_x+r*n_x*n_y]){
+		boundary.push_back(i+2*n_x+r*n_x*n_y);
+		}
+
+		//a == 1
+		if(grid[i+n_x*3+r*n_x*n_y]){
+		boundary.push_back(i+n_x*3+r*n_x*n_y);
+		}
+
+
+		//a == n_y-2
+		if(grid[i+n_x*(n_y-4)]){
+		boundary.push_back(i+n_x*(n_y-4));
+		}
+
+		//a == n_y-1
+		if(grid[i+n_x*(n_y-3)+r*n_x*n_y]){
+		boundary.push_back(i+n_x*(n_y-3)+r*n_x*n_y);
+		}
+
+	}
+
+	//a==2 to a==n_y-3, since a==0,a==1,a==n_y-2,n_y-1 already handled
+	for (int i = 4; i < n_y-4; i++){
+		//b == 0
+		if (grid[i*n_x+2+r*n_x*n_y]){
+		boundary.push_back(i*n_x+2+r*n_x*n_y);
+		}
+
+		//b == 1
+		if(grid[i*n_x+3+r*n_x*n_y]){
+		boundary.push_back(i*n_x+3+r*n_x*n_y);
+		}
+
+		//b == n_x-2
+		if(grid[(i+1)*n_x-4+r*n_x*n_y]){
+		boundary.push_back((i+1)*n_x-4+r*n_x*n_y);
+		}
+
+		//b == n_x-1
+		if(grid[(i+1)*n_x-3+r*n_x*n_y]){
+		boundary.push_back((i+1)*n_x-3+r*n_x*n_y);
+		}
+
+	}
+	}
+
+
+	return boundary;
+}
+
+
+
 
 list<Particle*> ParticleContainerLC::getBoundaryParticles(){
 	list<Particle*> boundary = list<Particle*>();
@@ -465,15 +528,13 @@ list<Particle*> ParticleContainerLC::getBoundaryParticles(){
 			boundary.push_back(*iter);
 		}
 		}
-		LOG4CXX_INFO(logger,"a=0");
 
 		//a == 1
 		if(grid[i+n_x*3+r*n_x*n_y]){
-		for (iter = grid[i+n_x+r*n_x*n_y]->begin(); iter != grid[i+n_x+r*n_x*n_y]->end(); iter++){
+		for (iter = grid[i+n_x*3+r*n_x*n_y]->begin(); iter != grid[i+n_x*3+r*n_x*n_y]->end(); iter++){
 			boundary.push_back(*iter);
 		}
 		}
-		LOG4CXX_INFO(logger,"a=1");
 
 
 		//a == n_y-2
@@ -482,7 +543,6 @@ list<Particle*> ParticleContainerLC::getBoundaryParticles(){
 			boundary.push_back(*iter);
 		}
 		}
-		LOG4CXX_INFO(logger,"a=y-2");
 
 		//a == n_y-1
 		if(grid[i+n_x*(n_y-3)+r*n_x*n_y]){
@@ -490,7 +550,6 @@ list<Particle*> ParticleContainerLC::getBoundaryParticles(){
 			boundary.push_back(*iter);
 		}
 		}
-		LOG4CXX_INFO(logger,"a=y-1");
 
 	}
 
@@ -502,7 +561,6 @@ list<Particle*> ParticleContainerLC::getBoundaryParticles(){
 			boundary.push_back(*iter);
 		}
 		}
-		LOG4CXX_INFO(logger,"b=0");
 
 		//b == 1
 		if(grid[i*n_x+3+r*n_x*n_y]){
@@ -510,7 +568,6 @@ list<Particle*> ParticleContainerLC::getBoundaryParticles(){
 			boundary.push_back(*iter);
 		}
 		}
-		LOG4CXX_INFO(logger,"b=1");
 
 		//b == n_x-2
 		if(grid[(i+1)*n_x-4+r*n_x*n_y]){
@@ -518,7 +575,6 @@ list<Particle*> ParticleContainerLC::getBoundaryParticles(){
 			boundary.push_back(*iter);
 		}
 		}
-		LOG4CXX_INFO(logger,"b=x-2");
 
 		//b == n_x-1
 		if(grid[(i+1)*n_x-3+r*n_x*n_y]){
@@ -526,7 +582,6 @@ list<Particle*> ParticleContainerLC::getBoundaryParticles(){
 			boundary.push_back(*iter);
 		}
 		}
-		LOG4CXX_INFO(logger,"b=x-1");
 
 	}
 	}
@@ -534,6 +589,49 @@ list<Particle*> ParticleContainerLC::getBoundaryParticles(){
 
 	return boundary;
 }
+
+list<int> ParticleContainerLC::getHaloCells(){
+	list<int> halo = list<int>();
+
+	list<Particle*>::iterator iter;
+
+	//if there are 3 dimensions add the boundary for each rectangle in the z-direction
+	for (int r = 0; r < n_z; r++){
+
+	for (int i = 0; i < n_x; i++){
+		//a == 0
+		halo.push_back(i+r*n_x*n_y);
+
+		//a == 1
+		halo.push_back(i+n_x+r*n_x*n_y);
+
+		//a == n_y-2
+		halo.push_back(i+n_x*(n_y-2)+r*n_x*n_y);
+
+		//a == n_y-1
+		halo.push_back(i+n_x*(n_y-1)+r*n_x*n_y);
+	}
+
+	//a==2 to a==n_y-3, since a==0,a==1,a==n_y-2,n_y-1 already handled
+	for (int i = 2; i < n_y-2; i++){
+		//b == 0
+		halo.push_back(i*n_x+r*n_x*n_y);
+
+		//b == 1
+		halo.push_back(i*n_x+1+r*n_x*n_y);
+
+		//b == n_x-2
+		halo.push_back((i+1)*n_x-2+r*n_x*n_y);
+
+		//b == n_x-1
+		halo.push_back((i+1)*n_x-1+r*n_x*n_y);
+	}
+	}
+
+
+	return halo;
+}
+
 
 list<Particle*> ParticleContainerLC::getHalo(){
 	list<Particle*> halo = list<Particle*>();
@@ -545,13 +643,17 @@ list<Particle*> ParticleContainerLC::getHalo(){
 
 	for (int i = 0; i < n_x; i++){
 		//a == 0
+		if (grid[i+r*n_x*n_y]){
 		for (iter = grid[i+r*n_x*n_y]->begin(); iter != grid[i+r*n_x*n_y]->end(); iter++){
 			halo.push_back(*iter);
 		}
+		}
 
 		//a == 1
+		if (grid[i+n_x+r*n_x*n_y]){
 		for (iter = grid[i+n_x+r*n_x*n_y]->begin(); iter != grid[i+n_x+r*n_x*n_y]->end(); iter++){
 			halo.push_back(*iter);
+		}
 		}
 
 		//a == n_y-2
@@ -560,8 +662,10 @@ list<Particle*> ParticleContainerLC::getHalo(){
 		}
 
 		//a == n_y-1
+		if (grid[i+n_x*(n_y-1)+r*n_x*n_y]){
 		for (iter = grid[i+n_x*(n_y-1)+r*n_x*n_y]->begin(); iter != grid[i+n_x*(n_y-1)+r*n_x*n_y]->end(); iter++){
 			halo.push_back(*iter);
+		}
 		}
 
 	}
@@ -569,23 +673,31 @@ list<Particle*> ParticleContainerLC::getHalo(){
 	//a==2 to a==n_y-3, since a==0,a==1,a==n_y-2,n_y-1 already handled
 	for (int i = 2; i < n_y-2; i++){
 		//b == 0
+		if(grid[i*n_x+r*n_x*n_y]){
 		for (iter = grid[i*n_x+r*n_x*n_y]->begin(); iter != grid[i*n_x+r*n_x*n_y]->end(); iter++){
 			halo.push_back(*iter);
 		}
+		}
 
 		//b == 1
+		if (grid[i*n_x+1+r*n_x*n_y]){
 		for (iter = grid[i*n_x+1+r*n_x*n_y]->begin(); iter != grid[i*n_x+1+r*n_x*n_y]->end(); iter++){
 			halo.push_back(*iter);
 		}
+		}
 
 		//b == n_x-2
+		if(grid[(i+1)*n_x-2+r*n_x*n_y]){
 		for (iter = grid[(i+1)*n_x-2+r*n_x*n_y]->begin(); iter != grid[(i+1)*n_x-2+r*n_x*n_y]->end(); iter++){
 			halo.push_back(*iter);
 		}
+		}
 
 		//b == n_x-1
+		if(grid[(i+1)*n_x-1+r*n_x*n_y]){
 		for (iter = grid[(i+1)*n_x-1+r*n_x*n_y]->begin(); iter != grid[(i+1)*n_x-1+r*n_x*n_y]->end(); iter++){
 			halo.push_back(*iter);
+		}
 		}
 	}
 	}
@@ -594,8 +706,8 @@ list<Particle*> ParticleContainerLC::getHalo(){
 	return halo;
 }
 
-void ParticleContainerLC::addToHalo(Particle& p){
-	utils::Vector<double, 3> position = p.getX();
+void ParticleContainerLC::addToHalo(Particle& p, int cell){
+/*	utils::Vector<double, 3> position = p.getX();
 
 	int cell_x = position[0]/r_cut_x;
 	int cell_y = position[1]/r_cut_y;
@@ -615,20 +727,25 @@ void ParticleContainerLC::addToHalo(Particle& p){
 
 	else{
 		LOG4CXX_INFO(logger, "Particle out of bounds");
+	}*/
+	if (!grid[cell]){
+		grid[cell] = new list<Particle*>();
 	}
+
+	grid[cell]->push_back(&p);
 
 }
 
 
-void ParticleContainerLC::removeFromHalo(Particle& p){
-	utils::Vector<double, 3> position = p.getX();
+void ParticleContainerLC::removeFromHalo(Particle& p, int cell){
+/*	utils::Vector<double, 3> position = p.getX();
 
-	int cell_x = position[0]/r_cut_z;
-	int cell_y = position[1]/r_cut_z;
+	int cell_x = position[0]/r_cut_x;
+	int cell_y = position[1]/r_cut_y;
 	int cell_z = position[2]/r_cut_z;
 
 	int cell = n_x*n_y*cell_z + n_x*cell_y + cell_x;
-
+*/
 	delFromCell(p, cell);
 
 }

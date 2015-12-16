@@ -41,11 +41,11 @@ ParticleGeneratorCuboid::ParticleGeneratorCuboid(ParticleContainer& particles, c
        	istringstream numstream(input);
         numstream >> numCuboids;
 
-    	dims = vector< vector<int> >(numCuboids);
+  /*  	dims = vector< vector<int> >(numCuboids);
     	for (int c = 0; c<numCuboids; c++){
     		dims[c] = vector<int>(2);
     	}
-
+*/
 
         //dims[numCuboids];
         for (int i = 0; i < numCuboids; i++) {
@@ -78,7 +78,11 @@ ParticleGeneratorCuboid::ParticleGeneratorCuboid(ParticleContainer& particles, c
           	//read velocity
           	for (int j=0; j<3; j++){
           		datastream >> v[j];
-        		}
+        	}
+
+          	datastream >> sigma;
+
+          	datastream >> epsilon;
 
     //      		if (datastream.eof()){
           	bm = 0.1;
@@ -90,7 +94,7 @@ ParticleGeneratorCuboid::ParticleGeneratorCuboid(ParticleContainer& particles, c
           	generateParticles(particles, i);
 
           	//save dimension of each cuboid
-          	dims[i][0]=x*y*z;
+ /*         	dims[i][0]=x*y*z;
 
           	if (z==1){
           		dims[i][1] = 2;
@@ -99,6 +103,7 @@ ParticleGeneratorCuboid::ParticleGeneratorCuboid(ParticleContainer& particles, c
           	else{
           		dims[i][1] = 3;
           	}
+          	*/
         }
     }
 }
@@ -143,7 +148,7 @@ void ParticleGeneratorCuboid::generateParticlesX(ParticleContainer& particles, i
 	for (int i = 0; i < n; i++){
 		utils::Vector<double, 3> cP = currentParticle;
 		cP[0] += h*i;
-		Particle p(cP,v,mass,type);
+		Particle p(cP,v,mass,type, false, false, sigma, epsilon);
 		LOG4CXX_INFO(logger, "Generated particle: " + p.toString());
 		particles.add(p);
 		LOG4CXX_INFO(logger, "Added particle: " + p.toString());

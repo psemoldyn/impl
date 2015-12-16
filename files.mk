@@ -4,6 +4,7 @@ src/MaxwellBoltzmannDistribution.cpp\
 src/outputWriter/VTKWriter.cpp\
 src/outputWriter/vtk-unstructured.cpp\
 src/outputWriter/XYZWriter.cpp\
+src/outputWriter/ParticleWriter.cpp\
 src/BoundaryConditions.cpp\
 src/ParticleGenerator.cpp\
 src/ParticleGeneratorSphere.cpp\

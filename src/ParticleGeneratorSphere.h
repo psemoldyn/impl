@@ -52,6 +52,10 @@ private:
 	 */
 	utils::Vector<double, 3> currentParticle;
 
+	double sigma;
+
+	double epsilon;
+
 	/**
 	 * Generates the particles in one row
 	 */

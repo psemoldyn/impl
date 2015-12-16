@@ -13,6 +13,7 @@
 #include "MaxwellBoltzmannDistribution.h"
 #include "BoundaryConditions.h"
 #include "Thermostat.h"
+#include "outputWriter/ParticleWriter.h"
 
 #include <list>
 #include <sstream>
@@ -87,7 +88,10 @@ int timeStepsChange;
 double tempDiff;
 bool brown;
 int numDim;
-
+double gravity;
+bool eq;
+char* writeTo;
+ParticleWriter pw = ParticleWriter();
 ParticleContainerLC particles;
 //ParticleContainer particlesLC;
 vector< vector<int> > dims;
@@ -139,7 +143,7 @@ int main(int argc, char* argsv[]) {
 	}
 
 	//pass "l" for a list of particles, "c" for a cuboid as the second argument
-	else if (argc >= 12 && argc <= 16){
+	else if (argc >= 13 && argc <= 19){
 
 		LOG4CXX_INFO(logger, "Start reading args");
 
@@ -167,30 +171,38 @@ int main(int argc, char* argsv[]) {
 			numDim = 3;
 		}
 
-		initTemp = atof(argsv[10]);
+		gravity = atof(argsv[10]);
 
-		timeSteps = atof(argsv[11]);
+		initTemp = atof(argsv[11]);
 
-		if (argc == 13){
-			if (*argsv[12] == 't'){
+		timeSteps = atof(argsv[12]);
+
+		if (argc == 16){
+			if (*argsv[13] == 't'){
 				brown = true;
 			}
-			else if (*argsv[12] == 'f'){
+			else if (*argsv[13] == 'f'){
 				brown = false;
+			}
+			if (argc == strcmp(argsv[14],"-eq")==0){
+				eq = true;
+				writeTo = argsv[15];
 			}
 		}
 
-		else if (argc == 15 || argc == 16){
-			targetTemp = atof(argsv[12]);
-			tempDiff = atof(argsv[13]);
-			timeStepsChange = atoi(argsv[14]);
-			if (argc == 16){
-				if (*argsv[15] == 't'){
-					brown = true;
-				}
-				else if (*argsv[15] == 'f'){
-					brown = false;
-				}
+		else if (argc == 19){
+			targetTemp = atof(argsv[13]);
+			tempDiff = atof(argsv[14]);
+			timeStepsChange = atoi(argsv[15]);
+			if (*argsv[16] == 't'){
+				brown = true;
+			}
+			else if (*argsv[16] == 'f'){
+				brown = false;
+			}
+			if (argc == strcmp(argsv[17],"-eq")==0){
+				eq = true;
+				writeTo = argsv[18];
 			}
 		}
 
@@ -233,6 +245,7 @@ int main(int argc, char* argsv[]) {
 
 			}*/
 		}
+
 
 		LOG4CXX_INFO(logger, "before thermo");
 		if (argc == 12 || argc == 13){
@@ -281,13 +294,18 @@ int main(int argc, char* argsv[]) {
 		else if (boundaryType == 1){
 			bc.applyReflectingBoundary(particles, 5, 1);
 		}
-
+		else if (boundaryType == 2){
+			bc.applyPeriodicBoundary(particles);
+		}
+	//	LOG4CXX_INFO(logger, "boundaries");
 		particles.updateGrid();
-
+	//	LOG4CXX_INFO(logger, "updated grid");
 		// calculate new f
 		calculateF();
+//		LOG4CXX_INFO(logger, "force");
 		// calculate new v
 		calculateV();
+		LOG4CXX_INFO(logger, "vel");
 		if (thermostat != NULL && iteration != 0){
 			thermostat->applyThermostat(iteration);
 		}
@@ -305,6 +323,10 @@ int main(int argc, char* argsv[]) {
 		current_time += delta_t;
 	}
 
+	if (eq){
+		pw.writeParticles(particles, writeTo);
+	}
+
 	LOG4CXX_INFO(logger, "Output written. Terminating...");
 	return 0;
 }
@@ -313,52 +335,61 @@ int main(int argc, char* argsv[]) {
 void calculateF() {
 	list<Particle*>::iterator iter;
 	list<Particle*>::iterator innerIter;
-	list<list<Particle*>*>::iterator neighborsIter;
+	list<int>::iterator neighborsIter;
 
-	float epsilon = 5.0;
-	float sigma = 1.0;
+	double epsilon;
+	double sigma;
+	double cutoff;
 
 	int length = particles.getGridDim()[0]*
 			particles.getGridDim()[1]*
 			particles.getGridDim()[2];
 
 	for (int i = 0; i < length; i++){
-		if ((*grid)[i]){
+	//	LOG4CXX_INFO(logger, i);
+		if ((*grid)[i] && (*grid)[i]->size() > 0){
 		for (iter = (*grid)[i]->begin(); iter != (*grid)[i]->end(); iter++){
 			Particle& p1 = **iter;
 			p1.getOldF() = p1.getF();
 			p1.getF() = 0;
-
-
-//			LOG4CXX_INFO(logger, "passed boundary conditions");
-
-			list<list<Particle*>*> neighbors = particles.findNeighbors(i);
-//			LOG4CXX_INFO(logger, "neighbors " << neighbors.size());
+	//		cout << p1 << endl;
+			if (!p1.getSkip()){
+			list<int> neighbors = particles.findNeighbors(i);
+	//		LOG4CXX_INFO(logger, "neighbors " << neighbors.size());
 			for (neighborsIter = neighbors.begin(); neighborsIter != neighbors.end(); neighborsIter++){
-				if (*neighborsIter){
-				list<Particle*>& neighbor = **neighborsIter;
-//				LOG4CXX_INFO(logger, "neighbor " << neighbor.size());
+				if ((*grid)[*neighborsIter] && (*grid)[*neighborsIter]->size() > 0){
+				list<Particle*>& neighbor = *(*grid)[*neighborsIter];
+	//			LOG4CXX_INFO(logger, "neighbor " << *neighborsIter << " " << (*grid)[*neighborsIter]->size());
 				for (innerIter = neighbor.begin(); innerIter != neighbor.end(); innerIter++){
+					if (*innerIter){
 					Particle& p2 = **innerIter;
 
-//					LOG4CXX_INFO(logger, "neighbor " << p2.toString());
+	//				LOG4CXX_INFO(logger, "neighbor " << p2.toString());
 
-					if (!(p1== p2)){
+					if (!(p1== p2) && !p2.getSkip()){
 
 						double distance = (p1.getX()-p2.getX()).L2Norm();
 //						LOG4CXX_INFO(logger, "dist " << distance);
 
+						sigma = (p1.getSigma() + p2.getSigma())/2;
+						epsilon = sqrt(p1.getEpsilon()*p2.getEpsilon());
 
-						if (distance <= r_cut){
-							p1.getF() = p1.getF() + 24.0*epsilon/(pow(distance,2))*(pow(sigma/distance,6)-2*pow(sigma/distance,12))*(p2.getX()-p1.getX());
+						cutoff = r_cut*sigma;
+
+						if (distance <= cutoff){
+							p1.getF() = p1.getF() + 24.0*epsilon/(distance*distance)*(pow(sigma/distance,6)-2*pow(sigma/distance,12))*(p2.getX()-p1.getX());
 						}
+
 					}
+				}
 				}
 				}
 			}
 
-			LOG4CXX_INFO(logger, "Calculated force of " << p1.toString());
+			p1.getF()[1] += p1.getM()*gravity;
+	//		LOG4CXX_INFO(logger, "Calculated force of " << p1.toString());
 
+		}
 		}
 		}
 	}

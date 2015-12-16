@@ -65,7 +65,7 @@ public:
 	/**
 	 * Returns a list of the cells neighboring the given
 	 */
-	list<list<Particle*>*> findNeighbors(int cell);
+	list<int> findNeighbors(int cell);
 
 	/**
 	 * Returns the grid of cells
@@ -92,19 +92,30 @@ public:
 	list<Particle*> getBoundaryParticles();
 
 	/**
+	 * Returns a list of the coundary cells
+	 */
+	list<int> getBoundaryCells();
+
+
+	/**
 	 * Returns a list of the particles in the ghost layer
 	 */
 	list<Particle*> getHalo();
 
 	/**
+	 * Returns a list of the cells in the ghost layer
+	 */
+	list<int> getHaloCells();
+
+	/**
 	 * Adds a particle to the ghost layer
 	 */
-	void addToHalo(Particle& p);
+	void addToHalo(Particle& p, int cell);
 
 	/**
 	 * Deletes a partcile from the halo
 	 */
-	void removeFromHalo(Particle& p);
+	void removeFromHalo(Particle& p, int cell);
 
 	vector<double> getDomain();
 

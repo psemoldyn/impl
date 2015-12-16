@@ -60,6 +60,16 @@ private:
 	double bm;
 
 	/**
+	 * Lennard-Jones parameter sigma
+	 */
+	double sigma;
+
+	/**
+	 * Lennard-Jones parameter epsilon
+	 */
+	double epsilon;
+
+	/**
 	 * Position of the first particle in a given row
 	 */
 	utils::Vector<double, 3> currentParticle;

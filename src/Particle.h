@@ -52,6 +52,16 @@ private:
 	//only temporary, think of a better way to remove particles that go oob
 	bool skip;
 
+	/**
+	 * stores the Lennard-Jones parameter sigma
+	 */
+	double sigma;
+
+	/**
+	 * stores the Lennard-Jones parameter epsilon
+	 */
+	double epsilon;
+
 public:
 
 	Particle(int type = 0);
@@ -64,7 +74,11 @@ public:
 			utils::Vector<double, 3> x_arg,
 	        utils::Vector<double, 3> v_arg,
 	        double m_arg,
-	        int type = 0
+	        int type = 0,
+			bool halo = false,
+			bool skip = false,
+			double sigma = 1,
+			double epsilon =5
 	);
 
 	virtual ~Particle();
@@ -90,6 +104,10 @@ public:
 	bool operator==(Particle& other);
 
 	std::string toString();
+
+	double getSigma();
+
+	double getEpsilon();
 };
 
 std::ostream& operator<<(std::ostream& stream, Particle& p);
