@@ -45,9 +45,11 @@ public:
 
 	Thermostat(ParticleContainer& particles);
 
-	Thermostat(ParticleContainer& particles, double initialTemp, int timeSteps, bool applyBrown, int numDimensions);
+	Thermostat(ParticleContainer& particles, double initialTemp,
+			int timeSteps, bool applyBrown, int numDimensions);
 
-	Thermostat(ParticleContainer& particles, double initialTemp, int timeSteps, bool applyBrown, double targetTemp,
+	Thermostat(ParticleContainer& particles, double initialTemp,
+			int timeSteps, bool applyBrown, double targetTemp,
 			double tempDiff, int timeStepsChange, int numDimensions);
 
 	virtual ~Thermostat();

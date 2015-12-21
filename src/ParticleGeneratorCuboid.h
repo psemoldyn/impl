@@ -87,10 +87,6 @@ private:
 
 
 public:
-	/**
-	 * Dimensions of the cuboids
-	 */
-	vector< vector<int> > dims;
 
 	ParticleGeneratorCuboid();
 	virtual ~ParticleGeneratorCuboid();
@@ -103,7 +99,10 @@ public:
 	/**
 	 * Uses the input parameters from the command line
 	 */
-	ParticleGeneratorCuboid(ParticleContainer& particles, utils::Vector<double, 3> start, int x, int y, int z, double h, double mass, utils::Vector<double, 3> v, double bm, int type);
+	ParticleGeneratorCuboid(ParticleContainer& particles,
+			utils::Vector<double, 3> start, int x, int y, int z, double h,
+			double mass, utils::Vector<double, 3> v, double sigma,
+			double epsilon, int type);
 
 };
 

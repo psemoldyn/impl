@@ -22,15 +22,19 @@
 class ParticleGeneratorSphere: public ParticleGenerator {
 private:
 	/**
-	 * Position of particle in lower left corner
+	 * Position of the center
 	 */
 	utils::Vector<double, 3> firstParticle;
 
 	/**
 	 * Radius of the sphere
 	 */
-	int x;
+	int radius;
 
+	/**
+	 * If the object to generate is a sphere or a circle
+	 */
+	bool w3d;
 
 	/**
 	 * Distance between the particles
@@ -59,12 +63,14 @@ private:
 	/**
 	 * Generates the particles in one row
 	 */
-	void generateParticlesX(ParticleContainer& particles, int n, utils::Vector<double, 3> currentRow, int type);
+	void generateParticlesX(ParticleContainer& particles, int n,
+			utils::Vector<double, 3> currentRow, int type);
 
 	/**
 	 * Generates the particles in one row
 	 */
-	void generateCircle(ParticleContainer& particles, int radius, utils::Vector<double, 3> currentZ, int type);
+	void generateCircle(ParticleContainer& particles, int radius,
+			utils::Vector<double, 3> currentZ, int type);
 
 
 	/**
@@ -90,7 +96,10 @@ public:
 	/**
 	 * Uses the input parameters from the command line
 	 */
-	ParticleGeneratorSphere(ParticleContainer& particles, utils::Vector<double, 3> start, int x, int y, int z, double h, double mass, utils::Vector<double, 3> v, double bm, int type);
+	ParticleGeneratorSphere(ParticleContainer& particles,
+			utils::Vector<double, 3> start, int radius, double h,
+			double mass, utils::Vector<double, 3> v, bool w3d,
+			double sigma, double epsilon, int type);
 
 
 };

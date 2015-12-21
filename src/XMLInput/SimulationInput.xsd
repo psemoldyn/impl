@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<xsd:complexType name="globalVals">
+		<xsd:attribute name="endTime" type="xsd:decimal"/>
+		<xsd:attribute name="deltaT" type="xsd:decimal"/>
+		<xsd:attribute name="simType" type="xsd:integer"/>
+		<xsd:attribute name="applyTemp" type="xsd:boolean"/>
+		<xsd:attribute name="gravity" type="xsd:decimal"/>
+		<xsd:attribute name="boundaryType" type="xsd:integer"/>
+		<xsd:attribute name="use3d" type="xsd:boolean"/>
+	</xsd:complexType>
+	<xsd:complexType name="cuboidInput">
+		<xsd:attribute name="firstPosX" type="xsd:decimal"/>
+		<xsd:attribute name="firstPosY" type="xsd:decimal"/>
+		<xsd:attribute name="firstPosZ" type="xsd:decimal"/>
+		<xsd:attribute name="startVelX" type="xsd:decimal"/>
+		<xsd:attribute name="startVelY" type="xsd:decimal"/>
+		<xsd:attribute name="startVelZ" type="xsd:decimal"/>
+		<xsd:attribute name="lengthX" type="xsd:integer"/>
+		<xsd:attribute name="lengthY" type="xsd:integer"/>
+		<xsd:attribute name="lengthZ" type="xsd:integer"/>
+		<xsd:attribute name="mass" type="xsd:decimal"/>
+		<xsd:attribute name="dist" type="xsd:decimal"/>
+		<xsd:attribute name="sigma" type="xsd:decimal"/>
+		<xsd:attribute name="epsilon" type="xsd:decimal"/>
+	</xsd:complexType>
+	<xsd:complexType name="sphereInput">
+		<xsd:attribute name="centerX" type="xsd:decimal"/>
+		<xsd:attribute name="centerY" type="xsd:decimal"/>
+		<xsd:attribute name="centerZ" type="xsd:decimal"/>
+		<xsd:attribute name="startVelX" type="xsd:decimal"/>
+		<xsd:attribute name="startVelY" type="xsd:decimal"/>
+		<xsd:attribute name="startVelZ" type="xsd:decimal"/>
+		<xsd:attribute name="radius" type="xsd:integer"/>
+		<xsd:attribute name="mass" type="xsd:decimal"/>
+		<xsd:attribute name="dist" type="xsd:decimal"/>
+		<xsd:attribute name="sigma" type="xsd:decimal"/>
+		<xsd:attribute name="epsilon" type="xsd:decimal"/>
+	</xsd:complexType>
+	<xsd:complexType name="listInput">
+		<xsd:attribute name="listParticleInput" type="xsd:string"/>
+	</xsd:complexType>
+	<xsd:complexType name="linkedCellInput">
+		<xsd:attribute name="domainSizeX" type="xsd:decimal"/>
+		<xsd:attribute name="domainSizeY" type="xsd:decimal"/>
+		<xsd:attribute name="domainSizeZ" type="xsd:decimal"/>
+		<xsd:attribute name="rcut" type="xsd:decimal"/>
+	</xsd:complexType>
+	<xsd:complexType name="tempInput">
+		<xsd:attribute name="initTemp" type="xsd:decimal"/>
+		<xsd:attribute name="stepsApply" type="xsd:integer"/>
+		<xsd:attribute name="brown" type="xsd:boolean"/>
+		<xsd:attribute name="deltaTemp" type="xsd:decimal"/>
+		<xsd:attribute name="deltaTempSteps" type="xsd:integer"/>
+		<xsd:attribute name="targetTemp" type="xsd:decimal"/>
+	</xsd:complexType>
+	<xsd:complexType name="outputData">
+		<xsd:attribute name="filename" type="xsd:string"/>
+		<xsd:attribute name="writeFreq" type="xsd:integer"/>
+		<xsd:attribute name="writeType" type="xsd:integer"/>
+	</xsd:complexType>	
+	<xsd:complexType name="particleInput">
+		<xsd:sequence>
+			<xsd:element maxOccurs="unbounded" minOccurs="0" name="cuboid" type="cuboidInput"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="0" name="sphere" type="sphereInput"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="0" name="list" type="listInput"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="simulationInput">
+		<xsd:sequence>
+			<xsd:element name="global" type="globalVals"/>
+			<xsd:element name="particles" type="particleInput"/>
+			<xsd:element name="linkedCell" type="linkedCellInput"/>
+			<xsd:element name="temp" type="tempInput"/>
+			<xsd:element name="outData" type="outputData"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="sim" type="simulationInput"/>
+</xsd:schema>

@@ -92,6 +92,7 @@ double gravity;
 bool eq;
 char* writeTo;
 ParticleWriter pw = ParticleWriter();
+ParticleContainer particles2;
 ParticleContainerLC particles;
 //ParticleContainer particlesLC;
 vector< vector<int> > dims;
@@ -134,7 +135,7 @@ int main(int argc, char* argsv[]) {
 		return 0;
 	}
 
-
+/*
 	else if (argc < 9) {
 		LOG4CXX_FATAL(logger,"Erroneous program call! Please type the end time and time step, then c for a file "
 				"containing cuboids or l for a file containing a list of particles, followed by the filename. ALternatively, "
@@ -206,44 +207,22 @@ int main(int argc, char* argsv[]) {
 			}
 		}
 
-	//	particles = ParticleContainerLC(r_cut, domainSize);
+	//	*particles = ParticleContainerLC(r_cut, domainSize);
 
 		if (*argsv[3] == 'l'){
 			FileReader fileReader;
 			fileReader.readFile(particles, argsv[4]);
-	/*		dims = vector< vector<int> >(1);
-			dims[0] = vector<int>(2);
-			dims[0][0] = particles.size();
-			dims[0][1] = 3; */
+
 		}
 		else if (*argsv[3]=='c'){
 
 			ParticleGeneratorCuboid pg(particles, argsv[4]);
-/*
-			//HORRIBLE! use a pointer to pg.dims, this is way too inefficient. i couldn't figure it out.
-			dims = vector< vector<int> >(pg.dims.size());
-			for (int c = 0; c<pg.dims.size();c++){
-				dims[c]=vector<int>(2);
-				dims[c][0]=pg.dims[c][0];
-				dims[c][1]=pg.dims[c][1];
-//				LOG4CXX_INFO(logger, pg.dims[c][1]);
-			}
-*/
+
 		}
 
 		else if (*argsv[3]=='s'){
 
 			ParticleGeneratorSphere pg(particles, argsv[4]);
-/*
-			//HORRIBLE! use a pointer to pg.dims, this is way too inefficient. i couldn't figure it out.
-			dims = vector< vector<int> >(pg.dims.size());
-			for (int c = 0; c<pg.dims.size();c++){
-				dims[c]=vector<int>(2);
-				dims[c][0]=pg.dims[c][0];
-				dims[c][1]=pg.dims[c][1];
-//				LOG4CXX_INFO(logger, pg.dims[c][1]);
-
-			}*/
 		}
 
 
@@ -266,6 +245,7 @@ int main(int argc, char* argsv[]) {
 		}
 
 	}
+	*/
 
 
 	//set up for use of Linked Cell Method
@@ -350,9 +330,8 @@ void calculateF() {
 		if ((*grid)[i] && (*grid)[i]->size() > 0){
 		for (iter = (*grid)[i]->begin(); iter != (*grid)[i]->end(); iter++){
 			Particle& p1 = **iter;
-			p1.getOldF() = p1.getF();
-			p1.getF() = 0;
-	//		cout << p1 << endl;
+//			p1.getOldF() = p1.getF();
+//			p1.getF() = 0;
 			if (!p1.getSkip()){
 			list<int> neighbors = particles.findNeighbors(i);
 	//		LOG4CXX_INFO(logger, "neighbors " << neighbors.size());
@@ -366,7 +345,7 @@ void calculateF() {
 
 	//				LOG4CXX_INFO(logger, "neighbor " << p2.toString());
 
-					if (!(p1== p2) && !p2.getSkip()){
+/*					if (!(p1== p2) && !p2.getSkip()){
 
 						double distance = (p1.getX()-p2.getX()).L2Norm();
 //						LOG4CXX_INFO(logger, "dist " << distance);
@@ -380,7 +359,7 @@ void calculateF() {
 							p1.getF() = p1.getF() + 24.0*epsilon/(distance*distance)*(pow(sigma/distance,6)-2*pow(sigma/distance,12))*(p2.getX()-p1.getX());
 						}
 
-					}
+					} */
 				}
 				}
 				}
@@ -478,7 +457,9 @@ void plotParticles(int iteration){
 
 	for (size_t i = 0; i < particles.size(); i++){
 		Particle& p = particles[i];
-		writer.plotParticle(p);
+		if (!p.getSkip()){
+			writer.plotParticle(p);
+		}
 	}
 
 	writer.writeFile(out_name, iteration);

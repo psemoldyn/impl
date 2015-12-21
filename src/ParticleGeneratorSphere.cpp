@@ -64,7 +64,7 @@ ParticleGeneratorSphere::ParticleGeneratorSphere(ParticleContainer& particles, c
 
 
        		//read number of particles along radius
-       		datastream >> x;
+       		datastream >> radius;
 
           	//read distance
          	datastream >> h;
@@ -76,27 +76,39 @@ ParticleGeneratorSphere::ParticleGeneratorSphere(ParticleContainer& particles, c
 
           	datastream >> epsilon;
 
-          	//maybe use arrays for the class attributes so all cuboids can be saved?
-          	generateParticles(particles, i);
-
-          	//save dimension of each cuboid
-/*          	dims[i][0]=x*y*z;
-
-          	if (z==1){
-          		dims[i][1] = 2;
+          	if (w3d){
+          		generateParticles(particles, i);
           	}
-
-          	else{
-          		dims[i][1] = 3;
+          	else {
+          		generateCircle(particles, radius, firstParticle, i);
           	}
-          	*/
         }
     }
 }
 
 
+ParticleGeneratorSphere::ParticleGeneratorSphere(ParticleContainer& particles, utils::Vector<double, 3> start, int radius, double h,
+		double mass, utils::Vector<double, 3> v, bool w3d, double sigma, double epsilon, int type):
+			firstParticle(start),
+			radius(radius),
+			h(h),
+			mass(mass),
+			v(v),
+			w3d(w3d),
+			sigma(sigma),
+			epsilon(epsilon)
+{
+	if (w3d){
+		generateParticles(particles, type);
+	}
+	else{
+		generateCircle(particles, radius, firstParticle, type);
+	}
+}
+
+
 void ParticleGeneratorSphere::generateParticles(ParticleContainer& particles, int type){
-	generateCircle(particles, x, firstParticle, type);
+	generateCircle(particles, radius, firstParticle, type);
 
 	utils::Vector<double, 3> currentZFront = currentParticle;
 	utils::Vector<double, 3> currentZBack = currentParticle;
@@ -104,16 +116,16 @@ void ParticleGeneratorSphere::generateParticles(ParticleContainer& particles, in
 	currentZFront[2] = firstParticle[2] - h/2;
 	currentZBack[2] = firstParticle[2] - h/2;
 
-	generateCircle(particles, x, currentZFront, type);
-	generateCircle(particles, x, currentZBack, type);
+	generateCircle(particles, radius, currentZFront, type);
+	generateCircle(particles, radius, currentZBack, type);
 
 
 	for (int i= 1; i < x-1; i++){
 		currentZFront[2] -= h;
 		currentZBack[2] += h;
 
-		generateCircle(particles, x-i, currentZFront, type);
-		generateCircle(particles, x-i, currentZBack, type);
+		generateCircle(particles, radius-i, currentZFront, type);
+		generateCircle(particles, radius-i, currentZBack, type);
 
 	}
 }

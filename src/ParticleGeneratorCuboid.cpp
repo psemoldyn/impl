@@ -111,8 +111,9 @@ ParticleGeneratorCuboid::ParticleGeneratorCuboid(ParticleContainer& particles, c
 
 ParticleGeneratorCuboid::ParticleGeneratorCuboid(ParticleContainer& particles, utils::Vector<double, 3> start, int x, int y,
 								int z, double h, double m,
-								utils::Vector<double, 3> v, double bm, int type):
-//										particles(particles),
+								utils::Vector<double, 3> v,
+								double sigma, double epsilon,
+								int type):
 										firstParticle(start),
 										x(x),
 										y(y),
@@ -120,26 +121,11 @@ ParticleGeneratorCuboid::ParticleGeneratorCuboid(ParticleContainer& particles, u
 										h(h),
 										mass(m),
 										v(v),
-										bm(bm),
-										currentParticle(start)
+										currentParticle(start),
+										sigma(sigma),
+										epsilon(epsilon)
 								{
-	int d;
-	if (z==1){
-		d=2;
-	}
-	else{
-		d=3;
-	}
 
-/*	dims = vector< vector<int> >();
-//	dims[cuboid][0]=x*y*z;
-//	dims[cuboid++][1] = d;
-//	int toadd[]={x*y*z,d};
-	vector<int> toadd;
-	toadd[0]=x*y*z;
-	toadd[1]=d;
-	dims.push_back(toadd);
-	*/
 	generateParticles(particles, type);
 								}
 
