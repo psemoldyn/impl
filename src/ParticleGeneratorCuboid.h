@@ -17,7 +17,7 @@
 #include <iostream>
 #include <cstdlib>
 
-class ParticleGeneratorCuboid: public ParticleGenerator {
+class ParticleGeneratorCuboid{
 private:
 	/**
 	 * Position of particle in lower left corner
@@ -77,13 +77,13 @@ private:
 	/**
 	 * Generates particles on the x-axis
 	 */
-	void generateParticlesX(ParticleContainer& particles, int n, int type);
+	void generateParticlesX(vector<Particle>& particles, int n, int type);
 
 
 	/**
 	 * Generates the particles
 	 */
-	void generateParticles(ParticleContainer& particles, int type);
+	void generateParticles(vector<Particle>& particles, int type);
 
 
 public:
@@ -94,12 +94,12 @@ public:
 	/**
 	 * Reads the input parameters from a file
 	 */
-	ParticleGeneratorCuboid(ParticleContainer& partciles, char* filename);
+	ParticleGeneratorCuboid(vector<Particle>& particles, char* filename);
 
 	/**
 	 * Uses the input parameters from the command line
 	 */
-	ParticleGeneratorCuboid(ParticleContainer& particles,
+	ParticleGeneratorCuboid(vector<Particle>& particles,
 			utils::Vector<double, 3> start, int x, int y, int z, double h,
 			double mass, utils::Vector<double, 3> v, double sigma,
 			double epsilon, int type);

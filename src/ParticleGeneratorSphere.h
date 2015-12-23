@@ -8,8 +8,6 @@
 #ifndef SRC_PARTICLEGENERATORSPHERE_H_
 #define SRC_PARTICLEGENERATORSPHERE_H_
 
-#include "ParticleGenerator.h"
-
 #include "ParticleContainer.h"
 #include "ParticleContainerLC.h"
 #include "utils/Vector.h"
@@ -19,7 +17,7 @@
 #include <iostream>
 #include <cstdlib>
 
-class ParticleGeneratorSphere: public ParticleGenerator {
+class ParticleGeneratorSphere {
 private:
 	/**
 	 * Position of the center
@@ -63,20 +61,20 @@ private:
 	/**
 	 * Generates the particles in one row
 	 */
-	void generateParticlesX(ParticleContainer& particles, int n,
+	void generateParticlesX(vector<Particle>& particles, int n,
 			utils::Vector<double, 3> currentRow, int type);
 
 	/**
 	 * Generates the particles in one row
 	 */
-	void generateCircle(ParticleContainer& particles, int radius,
+	void generateCircle(vector<Particle>& particles, int radius,
 			utils::Vector<double, 3> currentZ, int type);
 
 
 	/**
 	 * Generates the particles
 	 */
-	void generateParticles(ParticleContainer& particles, int type);
+	void generateParticles(vector<Particle>& particles, int type);
 
 
 public:
@@ -91,12 +89,12 @@ public:
 	/**
 	 * Reads the input parameters from a file
 	 */
-	ParticleGeneratorSphere(ParticleContainer& partciles, char* filename);
+	ParticleGeneratorSphere(vector<Particle>& partciles, char* filename);
 
 	/**
 	 * Uses the input parameters from the command line
 	 */
-	ParticleGeneratorSphere(ParticleContainer& particles,
+	ParticleGeneratorSphere(vector<Particle>& particles,
 			utils::Vector<double, 3> start, int radius, double h,
 			double mass, utils::Vector<double, 3> v, bool w3d,
 			double sigma, double epsilon, int type);

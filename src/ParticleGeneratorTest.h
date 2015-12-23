@@ -20,7 +20,6 @@
 #include <cppunit/BriefTestProgressListener.h>
 #include <cppunit/CompilerOutputter.h>
 
-#include "ParticleGenerator.h"
 #include "ParticleGeneratorCuboid.h"
 #include "utils/Vector.h"
 
@@ -36,7 +35,7 @@ class ParticleGeneratorTest : public CppUnit::TestFixture{
 	CPPUNIT_TEST_SUITE_END();
 
 private:
-	ParticleContainer pc;
+	ParticleContainer* pc;
 
 public:
 	ParticleGeneratorTest();

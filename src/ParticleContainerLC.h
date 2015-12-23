@@ -9,6 +9,7 @@
 #define SRC_PARTICLECONTAINERLC_H_
 
 #include "ParticleContainer.h"
+#include "Calculator.h"
 
 #include <iterator>
 #include <vector>
@@ -126,6 +127,34 @@ public:
 	double getCutY();
 
 	double getCutZ();
+
+	void iterPairs(Calculator& calc);
+
+	void iterSingles(Calculator& calc);
+
+
+	/**
+	 * Returns the number of elements in the container
+	 */
+	size_t size();
+
+	/**
+	 * Returns a pointer to the i-th element
+	 */
+	Particle& operator[](size_t i);
+
+	/**
+	 * Returns an iterator to the beginning of the container
+	 */
+	vector<Particle>::iterator begin();
+
+	/**
+	 * Returns an iterator to the next element after the end of the container
+	 */
+	vector<Particle>::iterator end();
+
+	vector<Particle> getParticles();
+
 
 };
 

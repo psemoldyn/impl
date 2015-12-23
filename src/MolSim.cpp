@@ -3,8 +3,8 @@
 #include "outputWriter/VTKWriter.h"
 #include "FileReader.h"
 #include "ParticleContainer.h"
+#include "ParticleContainerN.h"
 #include "ParticleContainerLC.h"
-#include "ParticleGenerator.h"
 #include "ParticleGeneratorCuboid.h"
 #include "ParticleGeneratorSphere.h"
 #include "ParticleContainerTest.h"
@@ -14,6 +14,11 @@
 #include "BoundaryConditions.h"
 #include "Thermostat.h"
 #include "outputWriter/ParticleWriter.h"
+#include "ForceCalc.h"
+#include "VelocityCalc.h"
+#include "PositionCalc.h"
+#include "XMLInput/SimulationInput.h"
+#include "XMLInput/ParseInput.h"
 
 #include <list>
 #include <sstream>
@@ -90,14 +95,18 @@ bool brown;
 int numDim;
 double gravity;
 bool eq;
+int simType;
 char* writeTo;
 ParticleWriter pw = ParticleWriter();
-ParticleContainer particles2;
-ParticleContainerLC particles;
+ParticleContainer* particles;
 //ParticleContainer particlesLC;
 vector< vector<int> > dims;
 //Thermostat thermostat(particles);
-Thermostat* thermostat = new Thermostat(particles);
+Thermostat* thermostat = NULL;
+ForceCalc* fc;
+VelocityCalc* vc;
+PositionCalc* pc = NULL;
+ParseInput* parser;
 
 vector<list<Particle*>*>* grid;
 
@@ -124,8 +133,8 @@ int main(int argc, char* argsv[]) {
 
 		//to add in future: choose function and unit test to run
 		else{
-			if (strcmp(argsv[2],"testConstructor")==0)
-				CppUnit::TestCaller<ParticleContainerTest> testPC(argsv[2],&ParticleContainerTest::testConstructor);
+//			if (strcmp(argsv[2],"testConstructor")==0)
+//				CppUnit::TestCaller<ParticleContainerTest> testPC(argsv[2],&ParticleContainerTest::testConstructor);
 			if (strcmp(argsv[2], "testSize")==0)
 				CppUnit::TestCaller<ParticleContainerTest> testPC(argsv[2],&ParticleContainerTest::testSize);
 			if (strcmp(argsv[2], "testIndex")==0)
@@ -133,6 +142,11 @@ int main(int argc, char* argsv[]) {
 		}
 
 		return 0;
+	}
+	else if (argc == 2){
+		parser = new ParseInput(argsv[1]);
+		parser->configure();
+		LOG4CXX_INFO(logger,::particles->size());
 	}
 
 /*
@@ -249,10 +263,11 @@ int main(int argc, char* argsv[]) {
 
 
 	//set up for use of Linked Cell Method
-	particles.init(r_cut, domainSize);
+//	particles->init(r_cut, domainSize);
 	LOG4CXX_INFO(logger, "LCC created in MolSim");
 
-	grid = particles.getGrid();
+
+//	grid = particles.getGrid();
 
 
 
@@ -268,27 +283,29 @@ int main(int argc, char* argsv[]) {
 		// calculate new x
 		calculateX();
 
-		if (boundaryType == 0){
-			bc.applyOutflowBoundary(particles);
+/*		if (boundaryType == 0){
+			bc.applyOutflowBoundary(*particles);
 		}
 		else if (boundaryType == 1){
-			bc.applyReflectingBoundary(particles, 5, 1);
+			bc.applyReflectingBoundary(*particles, 5, 1);
 		}
 		else if (boundaryType == 2){
-			bc.applyPeriodicBoundary(particles);
+			bc.applyPeriodicBoundary(*particles);
+		}*/
+//		LOG4CXX_INFO(logger, "boundaries");
+		if (::simType == 1){
+			particles->updateGrid();
 		}
-		LOG4CXX_INFO(logger, "boundaries");
-		particles.updateGrid();
-		LOG4CXX_INFO(logger, "updated grid");
+//		LOG4CXX_INFO(logger, "updated grid");
 		// calculate new f
 		calculateF();
-		LOG4CXX_INFO(logger, "force");
+//		LOG4CXX_INFO(logger, "force");
 		// calculate new v
 		calculateV();
-		LOG4CXX_INFO(logger, "vel");
-		if (thermostat != NULL && iteration != 0){
-			thermostat->applyThermostat(iteration);
-		}
+//		LOG4CXX_INFO(logger, "vel");
+//		if (thermostat != NULL && iteration != 0){
+//			thermostat->applyThermostat(iteration);
+//		}
 
 		iteration++;
 		if (iteration % 10 == 0) {
@@ -304,7 +321,7 @@ int main(int argc, char* argsv[]) {
 	}
 
 	if (eq){
-		pw.writeParticles(particles, writeTo);
+//		pw.writeParticles(particles, writeTo);
 	}
 
 	LOG4CXX_INFO(logger, "Output written. Terminating...");
@@ -313,7 +330,11 @@ int main(int argc, char* argsv[]) {
 
 
 void calculateF() {
-	list<Particle*>::iterator iter;
+
+	particles->iterPairs(*fc);
+	particles->iterSingles(*fc);
+
+/*	list<Particle*>::iterator iter;
 	list<Particle*>::iterator innerIter;
 	list<int>::iterator neighborsIter;
 
@@ -359,7 +380,7 @@ void calculateF() {
 							p1.getF() = p1.getF() + 24.0*epsilon/(distance*distance)*(pow(sigma/distance,6)-2*pow(sigma/distance,12))*(p2.getX()-p1.getX());
 						}
 
-					} */
+					}
 				}
 				}
 				}
@@ -371,7 +392,7 @@ void calculateF() {
 		}
 		}
 		}
-	}
+	} */
 }
 
 /*
@@ -402,7 +423,7 @@ void calcF(){
 */
 
 void calculateX() {
-	for (size_t i = 0; i < particles.size(); i++){
+/*	for (size_t i = 0; i < particles.size(); i++){
 		Particle& p = particles[i];
 		if (!p.getSkip()){
 		p.getOldX() = p.getX();
@@ -410,31 +431,22 @@ void calculateX() {
 		// this function is called before calculateF() (except for initial forces), so it uses f and not old_f (since f hasn"t been updated yet)
 		p.getX() = p.getX()+delta_t*p.getV()+pow(delta_t,2)/(2*p.getM())*p.getF();
 	}
-	}
+	} */
+	particles->iterSingles(*pc);
 }
 
 void calculateV() {
-	int cuboid=0;
+/*
 	for (size_t i = 0; i < particles.size(); i++){
 		Particle& p = particles[i];
 		if (!p.getSkip()){
 		// calculate velocity
 		p.getV() = p.getV()+delta_t/(2*p.getM())*(p.getOldF()+p.getF());
-		//save dimension of each cuboid somewhere
-		// i mod number particles in first cuboid = 0 => first cuboid, read dim
-		// i mod -||- = 1 => second cuboid. remove frist for simpler comparison
-/*		int dim;
-		if (i % dims[cuboid][0] < dims[cuboid][0]){
-			dim = dims[cuboid][1];
-		}
-		else{
-			cuboid++;
-			dim = dims[cuboid][1];
-		}*/
 		//should this be here??
 		MaxwellBoltzmannDistribution(p,0.1,numDim);
 	}
-	}
+	} */
+	particles->iterSingles(*vc);
 }
 
 
@@ -443,7 +455,7 @@ void plotParticlesXYZ(int iteration) {
 	string out_name("MD_vtk");
 
 	outputWriter::XYZWriter writer;
-	writer.plotParticles(particles, out_name, iteration);
+	writer.plotParticles(*particles, out_name, iteration);
 }
 
 
@@ -453,10 +465,10 @@ void plotParticles(int iteration){
 	string out_name("MD_vtk");
 
 	outputWriter::VTKWriter writer;
-	writer.initializeOutput(particles.size());
+	writer.initializeOutput((*particles).size());
 
-	for (size_t i = 0; i < particles.size(); i++){
-		Particle& p = particles[i];
+	for (size_t i = 0; i < (*particles).size(); i++){
+		Particle& p = (*particles)[i];
 		if (!p.getSkip()){
 			writer.plotParticle(p);
 		}

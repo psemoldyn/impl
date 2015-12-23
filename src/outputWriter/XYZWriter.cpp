@@ -23,7 +23,7 @@ XYZWriter::~XYZWriter() {
 	// TODO Auto-generated destructor stub
 }
 
-void XYZWriter::plotParticles(ParticleContainer particles, const std::string& filename, int iteration) {
+void XYZWriter::plotParticles(ParticleContainer& particles, const std::string& filename, int iteration) {
 	std::ofstream file;
 	stringstream strstr;
 	strstr << filename << "_" << (iteration < 10 ? "000" : (iteration < 100 ? "00" : ( iteration < 1000 ? "0" : "") )) << iteration << ".xyz";

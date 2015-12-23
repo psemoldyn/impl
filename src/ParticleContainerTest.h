@@ -22,6 +22,8 @@
 #include <cppunit/CompilerOutputter.h>
 
 #include "ParticleContainer.h"
+#include "ParticleContainerN.h"
+#include "ParticleContainerLC.h"
 #include "utils/Vector.h"
 
 using namespace CppUnit;
@@ -39,7 +41,7 @@ class ParticleContainerTest : public CppUnit::TestFixture{
 	CPPUNIT_TEST_SUITE_END();
 
 private:
-	ParticleContainer pc;
+	ParticleContainerN* pc;
 	Particle p1;
 	Particle p2;
 

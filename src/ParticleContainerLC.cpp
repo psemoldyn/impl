@@ -7,6 +7,7 @@
 
 #include "ParticleContainerLC.h"
 #include <iterator>
+#include <algorithm>
 
 static LoggerPtr logger(Logger::getLogger("global"));
 
@@ -39,6 +40,8 @@ ParticleContainerLC::ParticleContainerLC(double r_cut, vector<double> domainSize
 //		grid[n_x*n_y*n_z];
 	}
 
+	LOG4CXX_INFO(logger, this->r_cut << " " << n_x);
+
 	r_cut_x = domainSize[0]/float(n_x - 4);
 	r_cut_y = domainSize[0]/float(n_y - 4);
 	r_cut_z = domainSize[0]/float(n_z - 4);
@@ -49,7 +52,7 @@ ParticleContainerLC::ParticleContainerLC(double r_cut, vector<double> domainSize
 }
 
 void ParticleContainerLC::init(double r_cut, vector<double> domainSize){
-	this->r_cut = r_cut;
+/*	this->r_cut = r_cut;
 
 
 	if (domainSize[2] == 0){
@@ -96,6 +99,8 @@ void ParticleContainerLC::init(double r_cut, vector<double> domainSize){
 
 	LOG4CXX_INFO(logger, "LCC created");
 
+	vector<Particle>::iterator iter; */
+
 	vector<Particle>::iterator iter;
 
 	for (iter = particles.begin(); iter != particles.end(); iter++){
@@ -124,7 +129,8 @@ void ParticleContainerLC::add(Particle& p){
 		(dim == 3 && position[0]<domainSize[0] && position[1]<domainSize[1] && position[2]<domainSize[2])){
 	//each particle lands in cell position(coord)/factor_coord
 
-	int cell_x = position[0]/r_cut_x;	int cell_y = position[1]/r_cut_y;
+	int cell_x = position[0]/r_cut_x;
+	int cell_y = position[1]/r_cut_y;
 	int cell_z = position[2]/r_cut_z;
 	LOG4CXX_INFO(logger, "Adding at " << (n_x*n_y*cell_z + n_x*(cell_y+2) + cell_x + 2));
 
@@ -132,10 +138,13 @@ void ParticleContainerLC::add(Particle& p){
 		grid[n_x*n_y*cell_z + n_x*(cell_y+2) + cell_x+2] = new list<Particle*>();
 	}
 
-	grid[n_x*n_y*cell_z + n_x*(cell_y+2) + cell_x+2]->push_back(&p);
 
-	LOG4CXX_INFO(logger, "Added " + p.toString());
-			}
+	particles.push_back(p);
+	grid[n_x*n_y*cell_z + n_x*(cell_y+2) + cell_x+2]->push_back(&p);
+//	if (std::find(particles.begin(), particles.end(), p) == particles.end()){
+//	}
+//	LOG4CXX_INFO(logger, "Added " + p.toString());
+	}
 	else {
 		LOG4CXX_INFO(logger, "Particle out of bounds");
 	}
@@ -320,7 +329,48 @@ double ParticleContainerLC::getCutZ(){
 void ParticleContainerLC::updateGrid(){
 	vector<Particle>::iterator iter;
 
-	int oldCell;
+
+	int length = n_x*n_y*n_z;
+
+
+	for (int i = 0; i < length; i++){
+	//	LOG4CXX_INFO(logger, "sdhgbkf");
+		if (grid[i]){
+			grid[i]->clear();
+		}
+	}
+	for (iter = particles.begin(); iter != particles.end(); iter++){
+		Particle& p = *iter;
+//		LOG4CXX_INFO(logger, "adfgbdsfnlhgbkf");
+
+		utils::Vector<double, 3> position = p.getX();
+//		LOG4CXX_INFO(logger, "Adding " + p.toString());
+
+		if (!p.getHalo() && !p.getSkip()
+	     && ((position[0] >= 0 && position[0] < domainSize[0]) || position[0] == 0) &&
+			((position[1] >= 0 && position[1] < domainSize[1]) || position[1] == 0) &&
+			((position[2] >= 0 && position[2] < domainSize[2]) || position[2] == 0))
+		{
+		//each particle lands in cell position(coord)/factor_coord
+
+		int cell_x = position[0]/r_cut_x;
+		int cell_y = position[1]/r_cut_y;
+		int cell_z = position[2]/r_cut_z;
+	//	LOG4CXX_INFO(logger, "Adding at " << (n_x*n_y*cell_z + n_x*(cell_y+2) + cell_x + 2));
+
+		if (!grid[n_x*n_y*cell_z + n_x*(cell_y+2) + cell_x+2]){
+			grid[n_x*n_y*cell_z + n_x*(cell_y+2) + cell_x+2] = new list<Particle*>();
+		}
+
+		grid[n_x*n_y*cell_z + n_x*(cell_y+2) + cell_x+2]->push_back(&p);
+		}
+		else{
+			p.getSkip() = true;
+		}
+	}
+
+
+/*	int oldCell;
 	int newCell;
 
 	utils::Vector<double, 3> oldPosition;
@@ -347,13 +397,10 @@ void ParticleContainerLC::updateGrid(){
 
 		oldCell = n_x*n_y*old_cell_z + n_x*(old_cell_y+2) + old_cell_x + 2;
 
-		cout << oldCell << endl;
 		if (!p.getHalo() && !p.getSkip()
-	//     && ((newPosition[0] >= 0 && newPosition[0] < domainSize[0]) || newPosition[0] == 0) &&
-	//		((newPosition[1] >= 0 && newPosition[1] < domainSize[1]) || newPosition[1] == 0) &&
-	//		((newPosition[2] >= 0 && newPosition[2] < domainSize[2]) || newPosition[2] == 0))
-				){
-			cout << p << endl;
+	     && ((newPosition[0] >= 0 && newPosition[0] < domainSize[0]) || newPosition[0] == 0) &&
+			((newPosition[1] >= 0 && newPosition[1] < domainSize[1]) || newPosition[1] == 0) &&
+			((newPosition[2] >= 0 && newPosition[2] < domainSize[2]) || newPosition[2] == 0)){
 			new_cell_x = newPosition[0]/r_cut_x;
 			new_cell_y = newPosition[1]/r_cut_y;
 			new_cell_z = newPosition[2]/r_cut_z;
@@ -365,6 +412,12 @@ void ParticleContainerLC::updateGrid(){
 			}
 
 		}
+*/
+
+
+
+
+
 
 //		else {
 //			delFromCell(p, oldCell);
@@ -418,7 +471,7 @@ void ParticleContainerLC::updateGrid(){
 
 		}
 */
-	}
+
 }
 
 void ParticleContainerLC::delFromCell(Particle& p, int cell){
@@ -749,4 +802,86 @@ void ParticleContainerLC::removeFromHalo(Particle& p, int cell){
 	delFromCell(p, cell);
 
 }
+
+void ParticleContainerLC::iterPairs(Calculator& calc){
+
+	list<Particle*>::iterator iter;
+	list<Particle*>::iterator innerIter;
+	list<int>::iterator neighborsIter;
+
+	double epsilon;
+	double sigma;
+	double cutoff;
+
+	int length = n_x*n_y*n_z;
+
+//	LOG4CXX_INFO(logger, length);
+
+	for (int i = 0; i < length; i++){
+//		LOG4CXX_INFO(logger, i);
+		if ((grid)[i] && (grid)[i]->size() > 0){
+		for (iter = (grid)[i]->begin(); iter != (grid)[i]->end(); iter++){
+			Particle& p1 = **iter;
+			p1.getOldF() = p1.getF();
+			p1.getF() = 0;
+			if (!p1.getSkip()){
+			list<int> neighbors = this->findNeighbors(i);
+//			LOG4CXX_INFO(logger, "neighbors " << neighbors.size());
+			for (neighborsIter = neighbors.begin(); neighborsIter != neighbors.end(); neighborsIter++){
+				if ((grid)[*neighborsIter] && (grid)[*neighborsIter]->size() > 0){
+				list<Particle*>& neighbor = *(grid)[*neighborsIter];
+//				LOG4CXX_INFO(logger, "neighbor " << *neighborsIter << " " << (*grid)[*neighborsIter]->size());
+				for (innerIter = neighbor.begin(); innerIter != neighbor.end(); innerIter++){
+					if (*innerIter){
+					Particle& p2 = **innerIter;
+
+//					LOG4CXX_INFO(logger, "p1 " << p1.toString());
+
+					calc.calcForce(p1, p2);
+					}
+				}
+				}
+			}
+			}
+
+			LOG4CXX_INFO(logger, i);
+			LOG4CXX_INFO(logger, p1.toString());
+
+		}
+		}
+	}
+
+}
+
+
+void ParticleContainerLC::iterSingles(Calculator& calc){
+	vector<Particle>::iterator iter;
+
+	for (iter = particles.begin(); iter != particles.end(); iter++){
+		Particle& p = *iter;
+		calc.calc(p);
+	}
+}
+
+
+size_t ParticleContainerLC::size(){
+	return particles.size();
+}
+
+vector<Particle> ParticleContainerLC::getParticles(){
+	return particles;
+}
+
+Particle& ParticleContainerLC::operator[](size_t i){
+	return particles[i];
+}
+
+vector<Particle>::iterator ParticleContainerLC::begin(){
+	return particles.begin();
+}
+
+vector<Particle>::iterator ParticleContainerLC::end(){
+	return particles.end();
+}
+
 

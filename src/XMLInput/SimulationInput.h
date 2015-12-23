@@ -50,7 +50,7 @@
 #include <xsd/cxx/config.hxx>
 
 #if (XSD_INT_VERSION != 4000000L)
-#error XSD runtime version mismatch
+//#error XSD runtime version mismatch
 #endif
 
 #include <xsd/cxx/pre.hxx>
@@ -84,7 +84,7 @@ namespace xml_schema
   // anyType and anySimpleType.
   //
   typedef ::xsd::cxx::tree::type type;
-  typedef ::xsd::cxx::tree::simple_type< char, type > simple_type;
+  typedef ::xsd::cxx::tree::simple_type<  type > simple_type;
   typedef ::xsd::cxx::tree::type container;
 
   // 8-bit
@@ -139,7 +139,7 @@ namespace xml_schema
   // ID/IDREF.
   //
   typedef ::xsd::cxx::tree::id< char, ncname > id;
-  typedef ::xsd::cxx::tree::idref< char, ncname, type > idref;
+  typedef ::xsd::cxx::tree::idref< type, char, ncname > idref;
   typedef ::xsd::cxx::tree::idrefs< char, simple_type, idref > idrefs;
 
   // URI.
@@ -174,7 +174,7 @@ namespace xml_schema
   typedef ::xsd::cxx::tree::entity< char, ncname > entity;
   typedef ::xsd::cxx::tree::entities< char, simple_type, entity > entities;
 
-  typedef ::xsd::cxx::tree::content_order content_order;
+//  typedef ::xsd::cxx::tree::content_order content_order;
   // Flags and properties.
   //
   typedef ::xsd::cxx::tree::flags flags;

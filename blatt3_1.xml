@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<sim xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="src/XMLInput/SimulationInput.xsd">
+	<global endTime="6" deltaT="0.5" simType="1" use3d="false" />
+	<particles>
+		<cuboid firstPosX="20.0" firstPosY="20.0" firstPosZ="0.0" startVelX="0.0" startVelY="0.0" startVelZ="0.0" lengthX="100" lengthY="20" lengthZ="1" mass="1.0" dist="1.1225" sigma="5.0" epsilon="1.0" />
+		<cuboid firstPosX="70.0" firstPosY="60.0" firstPosZ="0.0" startVelX="0.0" startVelY="-10.0" startVelZ="0.0" lengthX="20" lengthY="20" lengthZ="1" mass="1.0" dist="1.1225" sigma="5.0" epsilon="1.0" />
+	</particles>
+	<linkedCell domainSizeX="180" domainSizeY="90" domainSizeZ="0" rcut="3" />
+	<temp initTemp="0" stepsApply="0" />
+	<outData filename="notusingthisatm.txt" writeFreq="10"/>
+</sim>
+

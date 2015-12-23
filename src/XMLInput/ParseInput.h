@@ -8,24 +8,37 @@
 #ifndef SRC_XMLINPUT_PARSEINPUT_H_
 #define SRC_XMLINPUT_PARSEINPUT_H_
 
+#include "Particle.h"
 #include "ParticleGeneratorCuboid.h"
 #include "ParticleGeneratorSphere.h"
 #include "BoundaryConditions.h"
 #include "ParticleContainer.h"
+#include "ParticleContainerN.h"
 #include "ParticleContainerLC.h"
 #include "FileReader.h"
+#include "outputWriter/ParticleWriter.h"
 #include "Thermostat.h"
-#include "SimulationInput.hxx"
+#include "Calculator.h"
+#include "ForceCalc.h"
+#include "VelocityCalc.h"
+#include "PositionCalc.h"
+#include "globals.h"
+#include "ForceCalcLC.h"
+#include "ForceCalcN.h"
+#include "utils/Vector.h"
+#include "SimulationInput.h"
 
 #include <vector>
 #include <auto_ptr.h>
 #include <iostream>
 #include <iterator>
 #include <list>
+#include <string>
+#include "SimulationInput.h"
 
 class ParseInput {
 private:
-	char* filename;
+	const char* filename;
 	double end_time;
 	double delta_t;
 	int simType;
@@ -42,12 +55,12 @@ private:
 	double gravity;
 	bool w3d;
 	bool eq;
-	char* writeTo;
+	const char* writeTo;
 	int writeFreq;
 	int writeType;
 	double domain[3];
-	ParticleWriter pw = ParticleWriter();
-	ParticleContainer particles;
+
+	vector<Particle>* particles;
 
 	void readXML();
 

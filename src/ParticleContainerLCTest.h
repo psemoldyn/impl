@@ -10,7 +10,6 @@
 
 #include "ParticleContainer.h"
 #include "ParticleContainerLC.h"
-#include "ParticleGenerator.h"
 #include "ParticleGeneratorCuboid.h"
 #include "utils/Vector.h"
 
@@ -58,9 +57,9 @@ class ParticleContainerLCTest : public CppUnit::TestFixture{
 	CPPUNIT_TEST_SUITE_END();
 
 private:
-	ParticleContainerLC ParticleContainer2x2;
-	ParticleContainerLC ParticleContainer4x4;
-	ParticleContainerLC ParticleContainer3x3x3;
+	ParticleContainerLC* ParticleContainer2x2;
+	ParticleContainerLC* ParticleContainer4x4;
+	ParticleContainerLC* ParticleContainer3x3x3;
 	Particle p1;
 	Particle p2;
 	Particle p3;

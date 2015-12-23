@@ -5,7 +5,6 @@
  *      Author: jana
  */
 
-#include "ParticleGenerator.h"
 #include "ParticleGeneratorCuboid.h"
 
 #include <sstream>
@@ -23,7 +22,7 @@ ParticleGeneratorCuboid::~ParticleGeneratorCuboid() {
 	// TODO Auto-generated destructor stub
 }
 
-ParticleGeneratorCuboid::ParticleGeneratorCuboid(ParticleContainer& particles, char* filename){
+ParticleGeneratorCuboid::ParticleGeneratorCuboid(vector<Particle>& particles, char* filename){
 	std::ifstream inputFile(filename);
 	string input;
 	int numCuboids;
@@ -109,7 +108,7 @@ ParticleGeneratorCuboid::ParticleGeneratorCuboid(ParticleContainer& particles, c
 }
 
 
-ParticleGeneratorCuboid::ParticleGeneratorCuboid(ParticleContainer& particles, utils::Vector<double, 3> start, int x, int y,
+ParticleGeneratorCuboid::ParticleGeneratorCuboid(vector<Particle>& particles, utils::Vector<double, 3> start, int x, int y,
 								int z, double h, double m,
 								utils::Vector<double, 3> v,
 								double sigma, double epsilon,
@@ -129,20 +128,21 @@ ParticleGeneratorCuboid::ParticleGeneratorCuboid(ParticleContainer& particles, u
 	generateParticles(particles, type);
 								}
 
-void ParticleGeneratorCuboid::generateParticlesX(ParticleContainer& particles, int n, int type){
+void ParticleGeneratorCuboid::generateParticlesX(vector<Particle>& particles, int n, int type){
 
 	for (int i = 0; i < n; i++){
 		utils::Vector<double, 3> cP = currentParticle;
 		cP[0] += h*i;
 		Particle p(cP,v,mass,type, false, false, sigma, epsilon);
 		LOG4CXX_INFO(logger, "Generated particle: " + p.toString());
-		particles.add(p);
+		particles.push_back(p);
+//		particles.add(p);
 		LOG4CXX_INFO(logger, "Added particle: " + p.toString());
 
 		}
 }
 
-void ParticleGeneratorCuboid::generateParticles(ParticleContainer& particles, int type){
+void ParticleGeneratorCuboid::generateParticles(vector<Particle>& particles, int type){
 	for (int i= 0; i < z; i++){
 		for (int j = 0; j < y; j++){
 			generateParticlesX(particles, x, type);

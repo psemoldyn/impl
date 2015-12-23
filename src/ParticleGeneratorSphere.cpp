@@ -19,7 +19,7 @@ ParticleGeneratorSphere::~ParticleGeneratorSphere() {
 	// TODO Auto-generated destructor stub
 }
 
-ParticleGeneratorSphere::ParticleGeneratorSphere(ParticleContainer& particles, char* filename){
+ParticleGeneratorSphere::ParticleGeneratorSphere(vector<Particle>& particles, char* filename){
 	std::ifstream inputFile(filename);
 	string input;
 	int numSpheres;
@@ -87,7 +87,7 @@ ParticleGeneratorSphere::ParticleGeneratorSphere(ParticleContainer& particles, c
 }
 
 
-ParticleGeneratorSphere::ParticleGeneratorSphere(ParticleContainer& particles, utils::Vector<double, 3> start, int radius, double h,
+ParticleGeneratorSphere::ParticleGeneratorSphere(vector<Particle>& particles, utils::Vector<double, 3> start, int radius, double h,
 		double mass, utils::Vector<double, 3> v, bool w3d, double sigma, double epsilon, int type):
 			firstParticle(start),
 			radius(radius),
@@ -107,7 +107,7 @@ ParticleGeneratorSphere::ParticleGeneratorSphere(ParticleContainer& particles, u
 }
 
 
-void ParticleGeneratorSphere::generateParticles(ParticleContainer& particles, int type){
+void ParticleGeneratorSphere::generateParticles(vector<Particle>& particles, int type){
 	generateCircle(particles, radius, firstParticle, type);
 
 	utils::Vector<double, 3> currentZFront = currentParticle;
@@ -120,7 +120,7 @@ void ParticleGeneratorSphere::generateParticles(ParticleContainer& particles, in
 	generateCircle(particles, radius, currentZBack, type);
 
 
-	for (int i= 1; i < x-1; i++){
+	for (int i= 1; i < radius-1; i++){
 		currentZFront[2] -= h;
 		currentZBack[2] += h;
 
@@ -131,7 +131,7 @@ void ParticleGeneratorSphere::generateParticles(ParticleContainer& particles, in
 }
 
 
-void ParticleGeneratorSphere::generateCircle(ParticleContainer& particles, int radius, utils::Vector<double, 3> currentZ, int type){
+void ParticleGeneratorSphere::generateCircle(vector<Particle>& particles, int radius, utils::Vector<double, 3> currentZ, int type){
 	generateParticlesX(particles, 0, firstParticle, type);
 
 	utils::Vector<double, 3> currentRowUp = currentZ;
@@ -150,8 +150,8 @@ void ParticleGeneratorSphere::generateCircle(ParticleContainer& particles, int r
 		Particle p1(currentRowUp, v, mass, type, false, false, sigma, epsilon);
 		Particle p2(currentRowDown, v, mass, type, false, false, sigma, epsilon);
 
-		particles.add(p1);
-		particles.add(p2);
+		particles.push_back(p1);
+		particles.push_back(p2);
 
 		generateParticlesX(particles, j, currentRowUp, type);
 		generateParticlesX(particles, j, currentRowDown, type);
@@ -168,15 +168,15 @@ void ParticleGeneratorSphere::generateCircle(ParticleContainer& particles, int r
 	Particle p1(currentRowUp, v, mass, type, false, false, sigma, epsilon);
 	Particle p2(currentRowDown, v, mass, type, false, false, sigma, epsilon);
 
-	particles.add(p1);
-	particles.add(p2);
+	particles.push_back(p1);
+	particles.push_back(p2);
 }
 
-void ParticleGeneratorSphere::generateParticlesX(ParticleContainer& particles, int n, utils::Vector<double, 3> currentRow, int type){
+void ParticleGeneratorSphere::generateParticlesX(vector<Particle>& particles, int n, utils::Vector<double, 3> currentRow, int type){
 	utils::Vector<double, 3> firstPosRight = currentRow;
 	firstPosRight[0] = firstParticle[0] + h/2;
 	Particle p1(firstPosRight, v, mass, type, false, false, sigma, epsilon);
-	particles.add(p1);
+	particles.push_back(p1);
 
 	utils::Vector<double, 3> firstPosLeft = currentRow;
 	firstPosLeft[0] = firstParticle[0] - h/2;
@@ -185,14 +185,14 @@ void ParticleGeneratorSphere::generateParticlesX(ParticleContainer& particles, i
 	utils::Vector<double, 3> cP1 = firstPosRight;
 	utils::Vector<double, 3> cP2 = firstPosLeft;
 
-	for (int i = 1; i < x-(n+1); i++){
+	for (int i = 1; i < radius-(n+1); i++){
 		firstPosRight[0] += h*i;
 		Particle p1(cP1, v, mass, type, false, false, sigma, epsilon);
-		particles.add(p1);
+		particles.push_back(p1);
 
 		firstPosLeft[0] -= h*i;
 		Particle p2(cP2, v, mass, type, false, false, sigma, epsilon);
-		particles.add(p2);
+		particles.push_back(p2);
 
 	}
 }

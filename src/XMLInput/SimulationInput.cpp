@@ -38,7 +38,7 @@
 
 #include <xsd/cxx/pre.hxx>
 
-#include "SimulationInput.hxx"
+#include "SimulationInput.h"
 
 // globalVals
 // 
@@ -1350,13 +1350,13 @@ outData (::std::auto_ptr< outData_type > x)
 globalVals::
 globalVals ()
 : ::xml_schema::type (),
-  endTime_ (this),
-  deltaT_ (this),
-  simType_ (this),
-  applyTemp_ (this),
-  gravity_ (this),
-  boundaryType_ (this),
-  use3d_ (this)
+  endTime_ (::xml_schema::flags(), this),
+  deltaT_ (::xml_schema::flags(), this),
+  simType_ (::xml_schema::flags(), this),
+  applyTemp_ (::xml_schema::flags(), this),
+  gravity_ (::xml_schema::flags(), this),
+  boundaryType_ (::xml_schema::flags(), this),
+  use3d_ (::xml_schema::flags(), this)
 {
 }
 
@@ -1380,17 +1380,17 @@ globalVals (const ::xercesc::DOMElement& e,
             ::xml_schema::flags f,
             ::xml_schema::container* c)
 : ::xml_schema::type (e, f | ::xml_schema::flags::base, c),
-  endTime_ (this),
-  deltaT_ (this),
-  simType_ (this),
-  applyTemp_ (this),
-  gravity_ (this),
-  boundaryType_ (this),
-  use3d_ (this)
+  endTime_ (f, this),
+  deltaT_ (f, this),
+  simType_ (f, this),
+  applyTemp_ (f, this),
+  gravity_ (f, this),
+  boundaryType_ (f, this),
+  use3d_ (f, this)
 {
   if ((f & ::xml_schema::flags::base) == 0)
   {
-    ::xsd::cxx::xml::dom::parser< char > p (e, false, false, true);
+    ::xsd::cxx::xml::dom::parser< char > p (e, false, true);
     this->parse (p, f);
   }
 }
@@ -1485,19 +1485,19 @@ globalVals::
 cuboidInput::
 cuboidInput ()
 : ::xml_schema::type (),
-  firstPosX_ (this),
-  firstPosY_ (this),
-  firstPosZ_ (this),
-  startVelX_ (this),
-  startVelY_ (this),
-  startVelZ_ (this),
-  lengthX_ (this),
-  lengthY_ (this),
-  lengthZ_ (this),
-  mass_ (this),
-  dist_ (this),
-  sigma_ (this),
-  epsilon_ (this)
+  firstPosX_ (::xml_schema::flags(), this),
+  firstPosY_ (::xml_schema::flags(), this),
+  firstPosZ_ (::xml_schema::flags(), this),
+  startVelX_ (::xml_schema::flags(), this),
+  startVelY_ (::xml_schema::flags(), this),
+  startVelZ_ (::xml_schema::flags(), this),
+  lengthX_ (::xml_schema::flags(), this),
+  lengthY_ (::xml_schema::flags(), this),
+  lengthZ_ (::xml_schema::flags(), this),
+  mass_ (::xml_schema::flags(), this),
+  dist_ (::xml_schema::flags(), this),
+  sigma_ (::xml_schema::flags(), this),
+  epsilon_ (::xml_schema::flags(), this)
 {
 }
 
@@ -1527,23 +1527,23 @@ cuboidInput (const ::xercesc::DOMElement& e,
              ::xml_schema::flags f,
              ::xml_schema::container* c)
 : ::xml_schema::type (e, f | ::xml_schema::flags::base, c),
-  firstPosX_ (this),
-  firstPosY_ (this),
-  firstPosZ_ (this),
-  startVelX_ (this),
-  startVelY_ (this),
-  startVelZ_ (this),
-  lengthX_ (this),
-  lengthY_ (this),
-  lengthZ_ (this),
-  mass_ (this),
-  dist_ (this),
-  sigma_ (this),
-  epsilon_ (this)
+  firstPosX_ (f, this),
+  firstPosY_ (f, this),
+  firstPosZ_ (f, this),
+  startVelX_ (f, this),
+  startVelY_ (f, this),
+  startVelZ_ (f, this),
+  lengthX_ (f, this),
+  lengthY_ (f, this),
+  lengthZ_ (f, this),
+  mass_ (f, this),
+  dist_ (f, this),
+  sigma_ (f, this),
+  epsilon_ (f, this)
 {
   if ((f & ::xml_schema::flags::base) == 0)
   {
-    ::xsd::cxx::xml::dom::parser< char > p (e, false, false, true);
+    ::xsd::cxx::xml::dom::parser< char > p (e, false, true);
     this->parse (p, f);
   }
 }
@@ -1680,17 +1680,17 @@ cuboidInput::
 sphereInput::
 sphereInput ()
 : ::xml_schema::type (),
-  centerX_ (this),
-  centerY_ (this),
-  centerZ_ (this),
-  startVelX_ (this),
-  startVelY_ (this),
-  startVelZ_ (this),
-  radius_ (this),
-  mass_ (this),
-  dist_ (this),
-  sigma_ (this),
-  epsilon_ (this)
+  centerX_ (::xml_schema::flags(), this),
+  centerY_ (::xml_schema::flags(), this),
+  centerZ_ (::xml_schema::flags(), this),
+  startVelX_ (::xml_schema::flags(), this),
+  startVelY_ (::xml_schema::flags(), this),
+  startVelZ_ (::xml_schema::flags(), this),
+  radius_ (::xml_schema::flags(), this),
+  mass_ (::xml_schema::flags(), this),
+  dist_ (::xml_schema::flags(), this),
+  sigma_ (::xml_schema::flags(), this),
+  epsilon_ (::xml_schema::flags(), this)
 {
 }
 
@@ -1718,21 +1718,21 @@ sphereInput (const ::xercesc::DOMElement& e,
              ::xml_schema::flags f,
              ::xml_schema::container* c)
 : ::xml_schema::type (e, f | ::xml_schema::flags::base, c),
-  centerX_ (this),
-  centerY_ (this),
-  centerZ_ (this),
-  startVelX_ (this),
-  startVelY_ (this),
-  startVelZ_ (this),
-  radius_ (this),
-  mass_ (this),
-  dist_ (this),
-  sigma_ (this),
-  epsilon_ (this)
+  centerX_ (f, this),
+  centerY_ (f, this),
+  centerZ_ (f, this),
+  startVelX_ (f, this),
+  startVelY_ (f, this),
+  startVelZ_ (f, this),
+  radius_ (f, this),
+  mass_ (f, this),
+  dist_ (f, this),
+  sigma_ (f, this),
+  epsilon_ (f, this)
 {
   if ((f & ::xml_schema::flags::base) == 0)
   {
-    ::xsd::cxx::xml::dom::parser< char > p (e, false, false, true);
+    ::xsd::cxx::xml::dom::parser< char > p (e, false, true);
     this->parse (p, f);
   }
 }
@@ -1855,7 +1855,7 @@ sphereInput::
 listInput::
 listInput ()
 : ::xml_schema::type (),
-  listParticleInput_ (this)
+  listParticleInput_ (::xml_schema::flags(), this)
 {
 }
 
@@ -1873,11 +1873,11 @@ listInput (const ::xercesc::DOMElement& e,
            ::xml_schema::flags f,
            ::xml_schema::container* c)
 : ::xml_schema::type (e, f | ::xml_schema::flags::base, c),
-  listParticleInput_ (this)
+  listParticleInput_ (f, this)
 {
   if ((f & ::xml_schema::flags::base) == 0)
   {
-    ::xsd::cxx::xml::dom::parser< char > p (e, false, false, true);
+    ::xsd::cxx::xml::dom::parser< char > p (e, false, true);
     this->parse (p, f);
   }
 }
@@ -1930,10 +1930,10 @@ listInput::
 linkedCellInput::
 linkedCellInput ()
 : ::xml_schema::type (),
-  domainSizeX_ (this),
-  domainSizeY_ (this),
-  domainSizeZ_ (this),
-  rcut_ (this)
+  domainSizeX_ (::xml_schema::flags(), this),
+  domainSizeY_ (::xml_schema::flags(), this),
+  domainSizeZ_ (::xml_schema::flags(), this),
+  rcut_ (::xml_schema::flags(), this)
 {
 }
 
@@ -1954,14 +1954,14 @@ linkedCellInput (const ::xercesc::DOMElement& e,
                  ::xml_schema::flags f,
                  ::xml_schema::container* c)
 : ::xml_schema::type (e, f | ::xml_schema::flags::base, c),
-  domainSizeX_ (this),
-  domainSizeY_ (this),
-  domainSizeZ_ (this),
-  rcut_ (this)
+  domainSizeX_ (f, this),
+  domainSizeY_ (f, this),
+  domainSizeZ_ (f, this),
+  rcut_ (f, this)
 {
   if ((f & ::xml_schema::flags::base) == 0)
   {
-    ::xsd::cxx::xml::dom::parser< char > p (e, false, false, true);
+    ::xsd::cxx::xml::dom::parser< char > p (e, false, true);
     this->parse (p, f);
   }
 }
@@ -2035,12 +2035,12 @@ linkedCellInput::
 tempInput::
 tempInput ()
 : ::xml_schema::type (),
-  initTemp_ (this),
-  stepsApply_ (this),
-  brown_ (this),
-  deltaTemp_ (this),
-  deltaTempSteps_ (this),
-  targetTemp_ (this)
+  initTemp_ (::xml_schema::flags(), this),
+  stepsApply_ (::xml_schema::flags(), this),
+  brown_ (::xml_schema::flags(), this),
+  deltaTemp_ (::xml_schema::flags(), this),
+  deltaTempSteps_ (::xml_schema::flags(), this),
+  targetTemp_ (::xml_schema::flags(), this)
 {
 }
 
@@ -2063,16 +2063,16 @@ tempInput (const ::xercesc::DOMElement& e,
            ::xml_schema::flags f,
            ::xml_schema::container* c)
 : ::xml_schema::type (e, f | ::xml_schema::flags::base, c),
-  initTemp_ (this),
-  stepsApply_ (this),
-  brown_ (this),
-  deltaTemp_ (this),
-  deltaTempSteps_ (this),
-  targetTemp_ (this)
+  initTemp_ (f, this),
+  stepsApply_ (f, this),
+  brown_ (f, this),
+  deltaTemp_ (f, this),
+  deltaTempSteps_ (f, this),
+  targetTemp_ (f, this)
 {
   if ((f & ::xml_schema::flags::base) == 0)
   {
-    ::xsd::cxx::xml::dom::parser< char > p (e, false, false, true);
+    ::xsd::cxx::xml::dom::parser< char > p (e, false, true);
     this->parse (p, f);
   }
 }
@@ -2160,9 +2160,9 @@ tempInput::
 outputData::
 outputData ()
 : ::xml_schema::type (),
-  filename_ (this),
-  writeFreq_ (this),
-  writeType_ (this)
+  filename_ (::xml_schema::flags(), this),
+  writeFreq_ (::xml_schema::flags(), this),
+  writeType_ (::xml_schema::flags(), this)
 {
 }
 
@@ -2182,13 +2182,13 @@ outputData (const ::xercesc::DOMElement& e,
             ::xml_schema::flags f,
             ::xml_schema::container* c)
 : ::xml_schema::type (e, f | ::xml_schema::flags::base, c),
-  filename_ (this),
-  writeFreq_ (this),
-  writeType_ (this)
+  filename_ (f, this),
+  writeFreq_ (f, this),
+  writeType_ (f, this)
 {
   if ((f & ::xml_schema::flags::base) == 0)
   {
-    ::xsd::cxx::xml::dom::parser< char > p (e, false, false, true);
+    ::xsd::cxx::xml::dom::parser< char > p (e, false, true);
     this->parse (p, f);
   }
 }
@@ -2255,9 +2255,9 @@ outputData::
 particleInput::
 particleInput ()
 : ::xml_schema::type (),
-  cuboid_ (this),
-  sphere_ (this),
-  list_ (this)
+  cuboid_ (::xml_schema::flags(), this),
+  sphere_ (::xml_schema::flags(), this),
+  list_ (::xml_schema::flags(), this)
 {
 }
 
@@ -2277,13 +2277,13 @@ particleInput (const ::xercesc::DOMElement& e,
                ::xml_schema::flags f,
                ::xml_schema::container* c)
 : ::xml_schema::type (e, f | ::xml_schema::flags::base, c),
-  cuboid_ (this),
-  sphere_ (this),
-  list_ (this)
+  cuboid_ (f, this),
+  sphere_ (f, this),
+  list_ (f, this)
 {
   if ((f & ::xml_schema::flags::base) == 0)
   {
-    ::xsd::cxx::xml::dom::parser< char > p (e, true, false, false);
+    ::xsd::cxx::xml::dom::parser< char > p (e, true, false);
     this->parse (p, f);
   }
 }
@@ -2292,7 +2292,7 @@ void particleInput::
 parse (::xsd::cxx::xml::dom::parser< char >& p,
        ::xml_schema::flags f)
 {
-  for (; p.more_content (); p.next_content (false))
+  for (; p.more_elements (); p.next_element (/*false*/))
   {
     const ::xercesc::DOMElement& i (p.cur_element ());
     const ::xsd::cxx::xml::qualified_name< char > n (
@@ -2371,11 +2371,11 @@ simulationInput (const global_type& global,
                  const temp_type& temp,
                  const outData_type& outData)
 : ::xml_schema::type (),
-  global_ (global, this),
-  particles_ (particles, this),
-  linkedCell_ (linkedCell, this),
-  temp_ (temp, this),
-  outData_ (outData, this)
+  global_ (global, ::xml_schema::flags(), this),
+  particles_ (particles, ::xml_schema::flags(), this),
+  linkedCell_ (linkedCell, ::xml_schema::flags(), this),
+  temp_ (temp, ::xml_schema::flags(), this),
+  outData_ (outData, ::xml_schema::flags(), this)
 {
 }
 
@@ -2386,11 +2386,11 @@ simulationInput (::std::auto_ptr< global_type > global,
                  ::std::auto_ptr< temp_type > temp,
                  ::std::auto_ptr< outData_type > outData)
 : ::xml_schema::type (),
-  global_ (global, this),
-  particles_ (particles, this),
-  linkedCell_ (linkedCell, this),
-  temp_ (temp, this),
-  outData_ (outData, this)
+  global_ (global, ::xml_schema::flags(),this),
+  particles_ (particles, ::xml_schema::flags(),this),
+  linkedCell_ (linkedCell, ::xml_schema::flags(),this),
+  temp_ (temp, ::xml_schema::flags(),this),
+  outData_ (outData, ::xml_schema::flags(),this)
 {
 }
 
@@ -2412,15 +2412,15 @@ simulationInput (const ::xercesc::DOMElement& e,
                  ::xml_schema::flags f,
                  ::xml_schema::container* c)
 : ::xml_schema::type (e, f | ::xml_schema::flags::base, c),
-  global_ (this),
-  particles_ (this),
-  linkedCell_ (this),
-  temp_ (this),
-  outData_ (this)
+  global_ (f, this),
+  particles_ (f, this),
+  linkedCell_ (f, this),
+  temp_ (f, this),
+  outData_ (f, this)
 {
   if ((f & ::xml_schema::flags::base) == 0)
   {
-    ::xsd::cxx::xml::dom::parser< char > p (e, true, false, false);
+    ::xsd::cxx::xml::dom::parser< char > p (e, true, false);
     this->parse (p, f);
   }
 }
@@ -2429,7 +2429,7 @@ void simulationInput::
 parse (::xsd::cxx::xml::dom::parser< char >& p,
        ::xml_schema::flags f)
 {
-  for (; p.more_content (); p.next_content (false))
+  for (; p.more_elements (); p.next_element (/*false*/))
   {
     const ::xercesc::DOMElement& i (p.cur_element ());
     const ::xsd::cxx::xml::qualified_name< char > n (

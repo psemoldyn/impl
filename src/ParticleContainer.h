@@ -10,6 +10,7 @@
 
 #include "Particle.h"
 #include "utils/Vector.h"
+#include "Calculator.h"
 
 #include <vector>
 #include <list>
@@ -27,50 +28,42 @@ public:
 	/**
 	 * Creates an empty container
 	 */
-	ParticleContainer();
+	virtual ~ParticleContainer(){
 
-	/**
-	 * Creates a container with n elements
-	 */
-	ParticleContainer(int n);
-
-	/**
-	 * Creates a copy of the passed container
-	 */
-	ParticleContainer(const ParticleContainer& pc);
-
-	/**
-	 * Creates a ParticleContainer of the passed list
-	 */
-	ParticleContainer(const vector<Particle> pvector);
-
-
-	vector<Particle> getParticles();
+	};
 
 	/**
 	 * Adds an element to the container
 	 */
-	void add(const Particle& p);
+	virtual void add(Particle& p) = 0;
 
 	/**
 	 * Returns the number of elements in the container
 	 */
-	size_t size();
+	virtual size_t size() = 0;
+
+	virtual vector<Particle> getParticles() = 0;
 
 	/**
 	 * Returns a pointer to the i-th element
 	 */
-	Particle& operator[](size_t i);
+	virtual Particle& operator[](size_t i) = 0;
 
 	/**
 	 * Returns an iterator to the beginning of the container
 	 */
-	vector<Particle>::iterator begin();
+	virtual vector<Particle>::iterator begin() = 0;
 
 	/**
 	 * Returns an iterator to the next element after the end of the container
 	 */
-	vector<Particle>::iterator end();
+	virtual vector<Particle>::iterator end() = 0;
+
+	virtual void iterSingles(Calculator& calc) = 0;
+
+	virtual void iterPairs(Calculator& calc) = 0;
+
+	virtual void updateGrid() = 0;
 
 };
 

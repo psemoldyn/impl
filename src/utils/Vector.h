@@ -106,6 +106,7 @@ public:
 		return sqrt(square_sum);
 	}
 
+
 	bool equals(const Vector& rhs) const {
 		for (int i = 0; i < length; i++) {
 			if (rhs.content[i] != this->content[i]) {
